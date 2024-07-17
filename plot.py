@@ -57,7 +57,9 @@ def plot_rose_contourf(fig, ax, dire, hs, value, title, cmap, levels=None, alpha
     return _ax
 
 
-def plot_data(boya, copernicus, gow, title, fname=None):
+def plot_data(boya, copernicus, gow, title, fname=None, fontsize=6):
+    plt.rcParams.update({'font.size': fontsize})
+
     fig = plt.figure()
     plt.suptitle(title)
     gs = GridSpec(nrows=2, ncols=3)
@@ -66,16 +68,16 @@ def plot_data(boya, copernicus, gow, title, fname=None):
     tp_max = max(boya.tp.max(), copernicus.VTPK.max(), gow.tp.max()) + 1
 
     # Boya
-    plot_rose(fig, gs[0, 0], boya.dir, boya.hs, 'Hs Boya', 'blue', _max=hs_max, func_format=format_m)
-    plot_rose(fig, gs[1, 0], boya.dir, boya.tp, 'Tp Boya', 'blue', _max=tp_max, func_format=format_s)
+    plot_rose(fig, gs[0, 0], boya.dir, boya.hs, 'Hs Boya', 'blue', _max=hs_max, func_format=format_m, fontsize=fontsize)
+    plot_rose(fig, gs[1, 0], boya.dir, boya.tp, 'Tp Boya', 'blue', _max=tp_max, func_format=format_s, fontsize=fontsize)
 
     # GOW
-    plot_rose(fig, gs[0, 1], gow.dir, gow.hs, 'Hs gow', 'purple', _max=hs_max, func_format=format_m)
-    plot_rose(fig, gs[1, 1], gow.dir, gow.tp, 'Tp gow', 'purple', _max=tp_max, func_format=format_s)
+    plot_rose(fig, gs[0, 1], gow.dir, gow.hs, 'Hs gow', 'purple', _max=hs_max, func_format=format_m, fontsize=fontsize)
+    plot_rose(fig, gs[1, 1], gow.dir, gow.tp, 'Tp gow', 'purple', _max=tp_max, func_format=format_s, fontsize=fontsize)
 
     # copernicus
-    plot_rose(fig, gs[0, 2], copernicus.VMDR, copernicus.VHM0, 'Hs copernicus', 'orange', _max=hs_max, func_format=format_m)
-    plot_rose(fig, gs[1, 2], copernicus.VMDR, copernicus.VTPK, 'Tp copernicus', 'orange', _max=tp_max, func_format=format_s)
+    plot_rose(fig, gs[0, 2], copernicus.VMDR, copernicus.VHM0, 'Hs copernicus', 'orange', _max=hs_max, func_format=format_m, fontsize=fontsize)
+    plot_rose(fig, gs[1, 2], copernicus.VMDR, copernicus.VTPK, 'Tp copernicus', 'orange', _max=tp_max, func_format=format_s, fontsize=fontsize)
 
     plt.tight_layout()
 
@@ -85,8 +87,10 @@ def plot_data(boya, copernicus, gow, title, fname=None):
 
 
 def plot_stats(dir_boya, hs_boya, dir_model, hs_model, hs_cal, hs_max, y_raw, y_cal,
-               bias_model, rmse_model, pearson_model, bias_cal, rmse_cal, pearson_cal,
+               bias_model, rmse_model, pearson_model, si_model, bias_cal, rmse_cal, pearson_cal, si_cal,
                name_model, title, c='', fname=None, fontsize=6):
+    plt.rcParams.update({'font.size': fontsize})
+
     fig = plt.figure()
     plt.suptitle(title, fontsize=fontsize)
     gs = GridSpec(nrows=2, ncols=4)
@@ -130,6 +134,10 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model, hs_cal, hs_max, y_raw, y_
     ax3.text(0.16, 0.85, f'{pearson_model:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
     ax3.text(0.29, 0.85, f'{pearson_cal:.4f}', color='green', fontsize=fontsize, transform=plt.gca().transAxes)
 
+    ax3.text(0.01, 0.8, 'SI: ', fontsize=fontsize, transform=plt.gca().transAxes)
+    ax3.text(0.06, 0.8, f'{si_model:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
+    ax3.text(0.18, 0.8, f'{si_cal:.4f}', color='green', fontsize=fontsize, transform=plt.gca().transAxes)
+
     # Distribuccion acumulada de la altura de ola
     boya_sorted = np.sort(hs_boya)
     p_boya = 100 * (np.arange(len(boya_sorted)) / (len(boya_sorted) - 1))
@@ -148,7 +156,6 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model, hs_cal, hs_max, y_raw, y_
     ax5.set_ylabel('Hs (m)', fontsize=fontsize)
     ax5.legend(fontsize=fontsize)
 
-    plt.rcParams.update({'font.size': fontsize})
     plt.tight_layout()
 
     if fname:

@@ -3,22 +3,26 @@ from sklearn.metrics import mean_squared_error
 from plot import plot_stats
 
 
+def calculate_stats(value_obs, value_pred):
+    bias = (np.mean((np.mean(value_pred) - value_obs) ** 2)) - np.var(value_pred)
+    rmse = np.sqrt(mean_squared_error(value_obs, value_pred))
+    pearson = np.corrcoef(value_obs, value_pred)[0, 1]
+    si = rmse / np.mean(value_obs)
+
+    return bias, rmse, pearson, si
+
+
 def stats(dir_boya, hs_boya, dir_model, hs_model, hs_cal, hs_max, y_raw, y_cal, name_model, title, c='', plot=True, fname=None):
     # Calcular estadisticas
-    bias_model = (np.mean((np.mean(hs_model) - hs_boya) ** 2)) - np.var(hs_model)
-    rmse_model = np.sqrt(mean_squared_error(hs_boya, hs_model))
-    pearson_model = np.corrcoef(hs_boya, hs_model)[0, 1]
-
-    bias_cal = (np.mean((np.mean(hs_cal) - hs_boya) ** 2)) - np.var(hs_cal)
-    rmse_cal = np.sqrt(mean_squared_error(hs_boya, hs_cal))
-    pearson_cal = np.corrcoef(hs_boya, hs_cal)[0, 1]
+    bias_model, rmse_model, pearson_model, si_model = calculate_stats(hs_boya, hs_model)
+    bias_cal, rmse_cal, pearson_cal, si_cal = calculate_stats(hs_boya, hs_cal)
 
     if plot:
         plot_stats(dir_boya, hs_boya, dir_model, hs_model, hs_cal, hs_max, y_raw, y_cal,
-                   bias_model, rmse_model, pearson_model, bias_cal, rmse_cal, pearson_cal,
+                   bias_model, rmse_model, pearson_model, si_model, bias_cal, rmse_cal, pearson_cal, si_cal,
                    name_model, title, c, fname)
 
-    return bias_cal, rmse_cal, pearson_cal
+    return bias_cal, rmse_cal, pearson_cal, si_cal
 
 
 def eval_eq(equation, value_str, value):

@@ -2,15 +2,12 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 from data import get_data
-from stats import stats, eval_eq
+from stats import stats
 
 
 def model_function(X, beta, gamma):
     return beta * X ** gamma
 
-
-df_res = pd.DataFrame(columns=['Nombre', 'Modelo', 'bias_gow', 'bias_cop', 'rmse_gow', 'rmse_cop', 'pearson_gow', 'pearson_cop'])
-df_res.to_csv('res.csv', index=False)
 
 df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
@@ -45,12 +42,12 @@ for nombre in df_boya['Nombre']:
     y_cal_cop = ((1 / beta_cop) ** (1 / gamma_cop)) * x_plot ** (1 / gamma_cop)
 
     title = f'Modelo {nombre}: y_cal = {((1 / beta_gow) ** (1 / gamma_gow)):.2f}*Hs^{(1 / gamma_gow):.2f}'
-    bias_gow, rmse_gow, pearson_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values, hs_cal_gow, hs_max, y_raw_gow, y_cal_gow,
-                                            'GOW', title, c='purple', fname=f'plot/model/poli/{nombre}_polinomial_gow.png')
+    bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values, hs_cal_gow, hs_max, y_raw_gow, y_cal_gow,
+                                                    'GOW', title, c='purple', fname=f'plot/model/NoLineal/{nombre}_noLineal_gow.png')
 
     title = f'Modelo {nombre}: y_cal = {((1 / beta_cop) ** (1 / gamma_cop)):.2f}*Hs^{(1 / gamma_cop):.2f}'
-    bias_cop, rmse_cop, pearson_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values, hs_cal_cop, hs_max, y_raw_cop, y_cal_cop,
-                                            'Copernicus', title, c='orange', fname=f'plot/model/poli/{nombre}_polinomial_cop.png')
+    bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values, hs_cal_cop, hs_max, y_raw_cop, y_cal_cop,
+                                                    'Copernicus', title, c='orange', fname=f'plot/model/NoLineal/{nombre}_noLineal_cop.png')
 
-    df_res.loc[len(df_res.index)] = [nombre, 'Polinomial', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop]
+    df_res.loc[len(df_res.index)] = [nombre, 'No Lineal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)
