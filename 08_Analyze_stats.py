@@ -40,4 +40,4 @@ for nombre in df_res['Nombre'].unique():
     si_cop_mean = (si_cop_mean + si_cop) / 2 if si_cop_mean is not None else si_cop
 
 plot_stats_comp('Media', models, bias_gow_mean, bias_cop_mean, rmse_gow_mean, rmse_cop_mean, p_gow_mean, p_cop_mean, si_gow_mean, si_cop_mean,
-                f'plot/model/comp/mean.png')
+                f'plot/model/00_Comp/mean.png')

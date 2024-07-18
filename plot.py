@@ -114,9 +114,9 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model, hs_cal, hs_max, y_raw, y_
     ax3 = fig.add_subplot(gs[1, :2])
     ax3.scatter(hs_boya, hs_model, color=c, s=2, alpha=0.6)
     ax3.scatter(hs_boya, hs_cal, color='green', s=2, alpha=0.6)
-    if y_raw:
+    if y_raw is not None:
         ax3.plot(np.linspace(0, hs_max, 11), y_raw, color=c, linestyle='--', linewidth=1)
-    if y_cal:
+    if y_cal is not None:
         ax3.plot(np.linspace(0, hs_max, 11), y_cal, color='green', linestyle='--', linewidth=1)
     ax3.plot([0, hs_max], [0, hs_max], color='black', linestyle='--', linewidth=1)
     ax3.set_xlabel(r'$Hs_{Boya} (m)$', fontsize=fontsize)

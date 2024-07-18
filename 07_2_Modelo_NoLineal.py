@@ -44,11 +44,11 @@ for nombre in df_boya['Nombre']:
 
     title = f'Modelo {nombre}: y_cal = {((1 / beta_gow) ** (1 / gamma_gow)):.2f}*Hs^{(1 / gamma_gow):.2f}'
     bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values, hs_cal_gow, hs_max, y_raw_gow, y_cal_gow,
-                                                    'GOW', title, c='purple', fname=f'plot/model/NoLineal/{nombre}_noLineal_gow.png', plot=plot)
+                                                    'GOW', title, c='purple', fname=f'plot/model/02_NoLineal/{nombre}_noLineal_gow.png', plot=plot)
 
     title = f'Modelo {nombre}: y_cal = {((1 / beta_cop) ** (1 / gamma_cop)):.2f}*Hs^{(1 / gamma_cop):.2f}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values, hs_cal_cop, hs_max, y_raw_cop, y_cal_cop,
-                                                    'Copernicus', title, c='orange', fname=f'plot/model/NoLineal/{nombre}_noLineal_cop.png', plot=plot)
+                                                    'Copernicus', title, c='orange', fname=f'plot/model/02_NoLineal/{nombre}_noLineal_cop.png', plot=plot)
 
     df_res.loc[len(df_res.index)] = [nombre, 'No Lineal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)
