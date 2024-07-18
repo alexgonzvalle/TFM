@@ -114,8 +114,10 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model, hs_cal, hs_max, y_raw, y_
     ax3 = fig.add_subplot(gs[1, :2])
     ax3.scatter(hs_boya, hs_model, color=c, s=2, alpha=0.6)
     ax3.scatter(hs_boya, hs_cal, color='green', s=2, alpha=0.6)
-    ax3.plot(np.linspace(0, hs_max, 11), y_raw, color=c, linestyle='--', linewidth=1)
-    ax3.plot(np.linspace(0, hs_max, 11), y_cal, color='green', linestyle='--', linewidth=1)
+    if y_raw:
+        ax3.plot(np.linspace(0, hs_max, 11), y_raw, color=c, linestyle='--', linewidth=1)
+    if y_cal:
+        ax3.plot(np.linspace(0, hs_max, 11), y_cal, color='green', linestyle='--', linewidth=1)
     ax3.plot([0, hs_max], [0, hs_max], color='black', linestyle='--', linewidth=1)
     ax3.set_xlabel(r'$Hs_{Boya} (m)$', fontsize=fontsize)
     ax3.set_ylabel('Hs (m)', fontsize=fontsize)
@@ -162,3 +164,43 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model, hs_cal, hs_max, y_raw, y_
         plt.savefig(fname, dpi=300)
         plt.close(fig)
 
+
+def plot_stats_comp(nombre, models, bias_gow, bias_cop, rmse_gow, rmse_cop, p_gow, p_cop, si_gow, si_cop, fname=None):
+    size_p = 5
+
+    fig, ax = plt.subplots(2, 2)
+    ax[0, 0].set_title(nombre + ' - Bias')
+    ax[0, 0].scatter(models, bias_gow, label='GOW', c='purple', s=size_p)
+    ax[0, 0].scatter(models, bias_cop, label='COP', c='orange', s=size_p)
+    ax[0, 0].plot(models, [0] * len(models), 'r--')
+    ax[0, 0].set_ylim(-1, 1)
+    ax[0, 0].legend()
+    ax[0, 0].grid()
+
+    ax[1, 0].set_title(nombre + ' - RMSE')
+    ax[1, 0].scatter(models, rmse_gow, label='GOW', c='purple', s=size_p)
+    ax[1, 0].scatter(models, rmse_cop, label='COP', c='orange', s=size_p)
+    ax[1, 0].set_ylim(0, 1)
+    ax[1, 0].legend()
+    ax[1, 0].grid()
+
+    ax[0, 1].set_title(nombre + ' - Pearson')
+    ax[0, 1].scatter(models, p_gow, label='GOW', c='purple', s=size_p)
+    ax[0, 1].scatter(models, p_cop, label='COP', c='orange', s=size_p)
+    ax[0, 1].plot(models, [0] * len(models), 'r--')
+    ax[0, 1].set_ylim(-1, 1)
+    ax[0, 1].legend()
+    ax[0, 1].grid()
+
+    ax[1, 1].set_title(nombre + ' - SI')
+    ax[1, 1].scatter(models, si_gow, label='GOW', c='purple', s=size_p)
+    ax[1, 1].scatter(models, si_cop, label='COP', c='orange', s=size_p)
+    ax[1, 1].set_ylim(0, 1)
+    ax[1, 1].legend()
+    ax[1, 1].grid()
+
+    plt.tight_layout()
+
+    if fname:
+        plt.savefig(fname, dpi=300)
+        plt.close(fig)
