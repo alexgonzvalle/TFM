@@ -51,12 +51,13 @@ for nombre in df_boya['Nombre']:
     boya, copernicus, gow = get_data(nombre)
 
     # Separar las variables predictoras (X) y la variable objetivo (y)
-    x_b = np.array([boya.hs.values, boya.tp.values, boya.dir.values]).T
+    # x = np.array([boya.hs.values, boya.tp.values, boya.dir.values]).T
+    x = np.array([boya.hs.values, boya.dir.values]).T
     y_gow = gow.hs.values.reshape(-1, 1)  # Variable objetivo que queremos predecir/corregir
     y_cop = copernicus.VHM0.values.reshape(-1, 1)  # Variable objetivo que queremos predecir/corregir
 
     # Matriz de covarianza del error del estado de referencia
-    B = np.eye(x_b.shape[1])  # Ejemplo simple con identidad
+    B = np.eye(x.shape[1])  # Ejemplo simple con identidad
     B_inv = np.linalg.inv(B)
 
     # Matriz de covarianza del error de las observaciones
@@ -64,11 +65,11 @@ for nombre in df_boya['Nombre']:
     R_gow_inv = np.linalg.inv(R_gow)
 
     # Minimizar la función de costo
-    res_gow = minimize(cost_function, x_b.flatten(), args=(x_b, B_inv, y_gow, R_gow_inv, H), method='L-BFGS-B', jac=jacobian, options={'disp': True})
-    y_cal_gow = res_gow.x.reshape(x_b.shape)[:, 0]
+    res_gow = minimize(cost_function, x.flatten(), args=(x, B_inv, y_gow, R_gow_inv, H), method='L-BFGS-B', jac=jacobian, options={'disp': True})
+    y_cal_gow = res_gow.x.reshape(x.shape)[:, 0]
 
-    res_cop = minimize(cost_function, x_b.flatten(), args=(x_b, B_inv, y_cop, R_gow_inv, H), method='L-BFGS-B', jac=jacobian, options={'disp': True})
-    y_cal_cop = res_cop.x.reshape(x_b.shape)[:, 0]
+    res_cop = minimize(cost_function, x.flatten(), args=(x, B_inv, y_cop, R_gow_inv, H), method='L-BFGS-B', jac=jacobian, options={'disp': True})
+    y_cal_cop = res_cop.x.reshape(x.shape)[:, 0]
 
     # Dibujar
     hs_max = 14  # int(max([boya.hs.max(), gow.hs.max(), copernicus.VHM0.max(), y_cal_gow.max(), y_cal_cop.max()])) + 1
@@ -78,16 +79,16 @@ for nombre in df_boya['Nombre']:
 
     modelo_regresion = LinearRegression()
 
-    modelo_regresion.fit(x_b[:, 0].reshape(-1, 1), y_gow)
+    modelo_regresion.fit(x[:, 0].reshape(-1, 1), y_gow)
     y_gow_plot = modelo_regresion.predict(x_plot.reshape(-1, 1))
 
-    modelo_regresion.fit(x_b[:, 0].reshape(-1, 1), y_cal_gow)
+    modelo_regresion.fit(x[:, 0].reshape(-1, 1), y_cal_gow)
     y_cal_gow_plot = modelo_regresion.predict(x_plot.reshape(-1, 1))
 
-    modelo_regresion.fit(x_b[:, 0].reshape(-1, 1), y_cop)
+    modelo_regresion.fit(x[:, 0].reshape(-1, 1), y_cop)
     y_cop_plot = modelo_regresion.predict(x_plot.reshape(-1, 1))
 
-    modelo_regresion.fit(x_b[:, 0].reshape(-1, 1), y_cal_cop)
+    modelo_regresion.fit(x[:, 0].reshape(-1, 1), y_cal_cop)
     y_cal_cop_plot = modelo_regresion.predict(x_plot.reshape(-1, 1))
 
     title = f'Modelo Multi Lineal {nombre}: y=a*Hs + b*Tp + c*Dire'

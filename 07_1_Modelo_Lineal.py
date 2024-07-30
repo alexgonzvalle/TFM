@@ -29,6 +29,15 @@ for nombre in df_boya['Nombre']:
     beta_cop = modelo_regresion.coef_[0]
     y_cal_cop = (1 / beta_cop) * y_cop
 
+    # import matplotlib.pyplot as plt
+    #
+    # x = [i for i in range(len(y_gow))]
+    # plt.plot(x, boya.hs.values, label='Boya')
+    # plt.plot(x, y_gow, label='GOW')
+    # plt.plot(x, y_cal_gow, label='Calibrada')
+    # plt.legend()
+    # plt.show()
+
     # Dibujar
     hs_max = 14  # int(max([boya.hs.max(), gow.hs.max(), copernicus.VHM0.max(), y_cal_gow.max(), y_cal_cop.max()])) + 1
 
