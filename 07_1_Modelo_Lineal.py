@@ -5,7 +5,7 @@ from data import get_data
 from stats import stats
 
 
-plot = True
+plot = False
 df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 

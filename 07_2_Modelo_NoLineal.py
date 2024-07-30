@@ -9,7 +9,7 @@ def model_function(X, beta, gamma):
     return beta * X ** gamma
 
 
-plot = True
+plot = False
 df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 
@@ -30,7 +30,7 @@ for nombre in df_boya['Nombre']:
 
     params, params_covariance = curve_fit(model_function, X, y_cop, p0=[1, 1])
     beta_cop, gamma_cop = params
-    hs_cal_cop = ((1 / beta_cop) ** (1 / gamma_cop)) * y_gow ** (1 / gamma_cop)
+    hs_cal_cop = ((1 / beta_cop) ** (1 / gamma_cop)) * y_cop ** (1 / gamma_cop)
 
     # Dibujar
     hs_max = 14  # int(max([boya.hs.max(), gow.hs.max(), copernicus.VHM0.max(), hs_cal_gow.max(), hs_cal_cop.max()])) + 1
