@@ -49,13 +49,13 @@ for nombre in df_boya['Nombre']:
     y_cop = copernicus.VHM0.values.reshape(-1, 1)  # Variable objetivo que queremos predecir/corregir
 
     # Inicialización de los parámetros del filtro
-    A = np.array([[1, 0], [0, 1]])  # Asumiendo un modelo simple donde los estados siguen siendo los mismos
-    B = np.array([[0], [0]])  # No hay control de entrada
-    H = np.array([[1, 0], [0, 1]])  # Observamos directamente ambos estados
-    Q = np.array([[0.0001, 0], [0, 0.0001]])  # Suposición de una pequeña incertidumbre en el modelo
-    R = np.array([[0.01, 0], [0, 0.01]])  # Suposición de una mayor incertidumbre en la medida
+    A = np.eye(x.shape[1])  # Asumiendo un modelo simple donde los estados siguen siendo los mismos
+    B = np.zeros((x.shape[1], 1))  # No hay control de entrada
+    H = np.eye(x.shape[1])  # Observamos directamente ambos estados
+    Q = np.eye(x.shape[1]) * 0.0001  # Suposición de una pequeña incertidumbre en el modelo
+    R = np.eye(x.shape[1]) * 0.01  # Suposición de una mayor incertidumbre en la medida
     x0 = np.array([[boya.hs.values[0]], [boya.dir.values[0]]])
-    P0 = np.array([[1, 0], [0, 1]])  # Inicialización de la covarianza del estado
+    P0 = np.eye(x.shape[1])  # Inicialización de la covarianza del estado
 
     # Aplicación del filtro de Kalman a los datos
     kf_gow = KalmanFilter(A, B, H, Q, R, x0, P0)
