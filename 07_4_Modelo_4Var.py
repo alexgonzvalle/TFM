@@ -7,26 +7,41 @@ from stats import stats
 
 
 def cost_function(x_flat, x_b, B_inv, y, R_inv, H):
-    x = x_flat.reshape(x_b.shape)
+    n_times, n_states = x_b.shape
+    x = x_flat.reshape((n_times, n_states))
 
     cost = 0
-    for i in range(len(x_b)):
-        x_i = x[i, :]
-        y_i = y[i, :]
-        term1 = 0.5 * np.dot((x_i - x_b[i, :]).T, np.dot(B_inv, (x_i - x_b[i, :])))
-        term2 = 0.5 * np.dot((H(x_i) - y_i).T, np.dot(R_inv, (H(x_i) - y_i)))
-        cost += term1 + term2
+    for t in range(n_times):
+        x_t = x[t, :]
+        y_t = y[t, :]
+        term1 = 0.5 * np.dot((x_t - x_b[t, :]).T, np.dot(B_inv, (x_t - x_b[t, :])))
+        if t > 0:
+            # Penaliza la diferencia entre el estado evolucionado y el estado en el tiempo anterior
+            x_prev = x[t - 1, :]
+            term2 = 0.5 * np.dot((x_t - x_prev).T, np.dot(B_inv, (x_t - x_prev)))
+        else:
+            term2 = 0
+
+        term3 = 0.5 * np.dot((H(x_t) - y_t).T, np.dot(R_inv, (H(x_t) - y_t)))
+        cost += term1 + term2 + term3
+
     return cost
 
 
 def jacobian(x_flat, x_b, B_inv, y, R_inv, H):
-    x = x_flat.reshape(x_b.shape)
-
+    n_times, n_states = x_b.shape
+    x = x_flat.reshape((n_times, n_states))
     jac = np.zeros_like(x)
-    for i in range(len(x_b)):
-        x_i = x[i, :]
-        y_i = y[i, :]
-        jac[i, :] = np.dot(B_inv, (x_i - x_b[i, :])) + np.dot(R_inv, (H(x_i) - y_i))
+
+    for t in range(n_times):
+        x_t = x[t, :]
+        y_t = y[t, :]
+        if t > 0:
+            x_prev = x[t - 1, :]
+            jac[t, :] = np.dot(B_inv, (x_t - x_b[t, :])) + np.dot(R_inv, (H(x_t) - y_t)) + np.dot(B_inv, (x_t - x_prev))
+        else:
+            jac[t, :] = np.dot(B_inv, (x_t - x_b[t, :])) + np.dot(R_inv, (H(x_t) - y_t))
+
     return jac.flatten()
 
 
@@ -94,13 +109,13 @@ for nombre in df_boya['Nombre']:
     modelo_regresion.fit(x[:, 0].reshape(-1, 1), y_cal_cop)
     y_cal_cop_plot = modelo_regresion.predict(x_plot.reshape(-1, 1))
 
-    title = f'Modelo 3DVar {nombre}'
+    title = f'Modelo 4DVar {nombre}'
     bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values, y_cal_gow, hs_max, y_gow_plot, y_cal_gow_plot,
-                                                    'GOW', title, c='purple', fname=f'plot/model/03_3DVar/{nombre}_3dvar_gow.png', plot=plot)
+                                                    'GOW', title, c='purple', fname=f'plot/model/04_4DVar/{nombre}_4dvar_gow.png', plot=plot)
 
-    title = f'Modelo 3DVar {nombre}'
+    title = f'Modelo 4DVar {nombre}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values, y_cal_cop, hs_max, y_cop_plot, y_cal_cop_plot,
-                                                    'Copernicus', title, c='orange', fname=f'plot/model/03_3DVar/{nombre}_3dvar_cop.png', plot=plot)
+                                                    'Copernicus', title, c='orange', fname=f'plot/model/04_4DVar/{nombre}_4dvar_cop.png', plot=plot)
 
-    df_res.loc[len(df_res.index)] = [nombre, '3DVar', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
+    df_res.loc[len(df_res.index)] = [nombre, '4DVar', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)
