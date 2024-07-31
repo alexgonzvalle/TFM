@@ -65,5 +65,5 @@ for nombre in df_boya['Nombre']:
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values, y_cal_cop, hs_max, y_raw_cop, y_cal_cop_plot,
                                                     'Copernicus', title, c='orange', fname=f'plot/model/02_NoLineal/{nombre}_noLineal_cop.png', plot=plot)
 
-    df_res.loc[len(df_res.index)] = [nombre, 'No Lineal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
+    df_res.loc[len(df_res.index)] = [nombre, 'No_Lineal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)

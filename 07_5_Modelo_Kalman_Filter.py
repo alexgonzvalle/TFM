@@ -104,11 +104,11 @@ for nombre in df_boya['Nombre']:
 
     title = f'Modelo Kalman Filter {nombre}'
     bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values, y_cal_gow, hs_max, y_gow_plot, y_cal_gow_plot,
-                                                    'GOW', title, c='purple', fname=f'plot/model/04_Kalman/{nombre}_kalman_gow.png', plot=plot)
+                                                    'GOW', title, c='purple', fname=f'plot/model/05_Kalman/{nombre}_kalman_gow.png', plot=plot)
 
     title = f'Modelo Kalman Filter {nombre}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values, y_cal_cop, hs_max, y_cop_plot, y_cal_cop_plot,
-                                                    'Copernicus', title, c='orange', fname=f'plot/model/04_Kalman/{nombre}_kalman_cop.png', plot=plot)
+                                                    'Copernicus', title, c='orange', fname=f'plot/model/05_Kalman/{nombre}_kalman_cop.png', plot=plot)
 
-    df_res.loc[len(df_res.index)] = [nombre, 'Lineal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
+    df_res.loc[len(df_res.index)] = [nombre, 'Kalman', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)
