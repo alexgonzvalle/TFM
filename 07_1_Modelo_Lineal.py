@@ -2,11 +2,10 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from data import get_data
-import datetime as dt
 from stats import stats
 
 
-plot = True
+plot = False
 df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 
@@ -26,11 +25,12 @@ for nombre in df_boya['Nombre']:
     X_train = np.array([boya.hs.values[:ind_time]]).T
     X_test = np.array([boya.hs.values[ind_time:]]).T
 
-    y_gow_train = gow.hs.values[:ind_time]  # Variable objetivo que queremos predecir/corregir
-    y_gow_test = gow.hs.values[ind_time:]  # Variable objetivo que queremos predecir/corregir
+    # Variable objetivo que queremos predecir/corregir
+    y_gow_train = gow.hs.values[:ind_time]
+    y_gow_test = gow.hs.values[ind_time:]
 
-    y_cop_train = copernicus.VHM0.values[:ind_time]  # Variable objetivo que queremos predecir/corregir
-    y_cop_test = copernicus.VHM0.values[ind_time:]  # Variable objetivo que queremos predecir/corregir
+    y_cop_train = copernicus.VHM0.values[:ind_time]
+    y_cop_test = copernicus.VHM0.values[ind_time:]
 
     # Modelo
     modelo_regresion = LinearRegression()
