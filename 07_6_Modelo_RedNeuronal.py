@@ -8,12 +8,27 @@ import pandas as pd
 from data import get_data
 from stats import stats
 
+
+def create_sequences(value_in, seq_length):
+    dim_var = value_in.shape[1]
+    value_in = np.vstack((np.zeros((seq_length, dim_var)), value_in))
+    value_out = []
+
+    for i in range(len(value_in) - seq_length):
+        if dim_var == 1:
+            value_out.append(value_in[i + seq_length])
+        else:
+            value_out.append(value_in[i:i + seq_length])
+
+    return np.array(value_out)
+
+
 plot = True
 df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 
 # MODELO LINEAL
-for nombre in df_boya['Nombre'][:1]:
+for nombre in df_boya['Nombre']:
     boya, copernicus, gow = get_data(nombre)
 
     # Separar las variables predictoras (X) y la variable objetivo (y)
@@ -30,19 +45,28 @@ for nombre in df_boya['Nombre'][:1]:
     y_norm_gow = scaler_y.fit_transform(y_gow)
     y_norm_cop = scaler_y.fit_transform(y_cop)
 
+    # Crear secuencia
+    # seq_length = 24  # Longitud de la secuencia
+    # X_norm = create_sequences(X_norm, seq_length)
+    # y_norm_gow = create_sequences(y_norm_gow, seq_length)
+    # y_norm_cop = create_sequences(y_norm_cop, seq_length)
+
     # Definir la arquitectura de la red neuronal
     model = Sequential()
-    model.add(Dense(128, input_shape=(X_norm.shape[1], ), activation='relu'))
-    model.add(Dense(64, activation='relu'))
-    model.add(Dense(32, activation='relu'))
-    model.add(Dense(1))  # Salida: Hs
+    # model.add(LSTM(128, return_sequences=True, input_shape=(seq_length, X_norm.shape[2])))
+    # model.add(LSTM(64))
+    model.add(Dense(units=10, activation='sigmoid', input_dim=X_norm.shape[1]))
+    model.add(Dense(units=6, activation='sigmoid'))
+    model.add(Dense(1, activation='sigmoid'))  # Salida: Hs
 
     # Compilar el modelo
     model.compile(optimizer=Adam(learning_rate=0.001), loss='mse')
 
     # Entrenar la red neuronal
-    model.fit(X_norm, y_norm_gow, epochs=100, batch_size=32)
+    history = model.fit(X_norm, y_norm_gow, epochs=100)
+
     X_norm_gow = scaler_x.fit_transform(np.array([gow.hs.values, gow.dir.values]).T)
+    # X_norm_gow = create_sequences(X_norm_gow, seq_length)
     y_cal_gow = scaler_y.inverse_transform(model.predict(X_norm_gow)).ravel()
 
     # import matplotlib.pyplot as plt
@@ -54,8 +78,9 @@ for nombre in df_boya['Nombre'][:1]:
     # plt.legend()
     # plt.show()
 
-    model.fit(X_norm, y_norm_cop, epochs=20, batch_size=32)
+    model.fit(X_norm, y_norm_cop, epochs=100)
     X_norm_cop = scaler_x.fit_transform(np.array([copernicus.VHM0.values, copernicus.VMDR.values]).T)
+    # X_norm_cop = create_sequences(X_norm_cop, seq_length)
     y_cal_cop = scaler_y.inverse_transform(model.predict(X_norm_cop)).ravel()
 
     # Dibujar
