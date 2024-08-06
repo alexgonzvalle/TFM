@@ -29,22 +29,17 @@ def plot_rose(fig, ax, dire, hs, title, c, alpha=0.3, _max=None, func_format=for
     _ax.set_xticks(np.linspace(0, 2 * np.pi, len(labels), endpoint=False))
     _ax.set_xticklabels(labels, fontsize=fontsize)
     _ax.yaxis.set_major_formatter(FuncFormatter(func_format))
+
     return _ax
 
 
 def plot_rose_contourf(fig, ax, dire, hs, value, title, cmap, levels=None, alpha=1, _max=None, func_format=format_m, fontsize=6):
     labels = ['N', 'N-E', 'E', 'S-E', 'S', 'S-W', 'W', 'N-W']
 
-    dire_c = np.deg2rad(dire)
-    _x = np.linspace(dire_c.min(), dire_c.max(), 36)
-    _y = np.linspace(hs.min(), hs.max(), 72)
-    x, y = np.meshgrid(_x, _y)
-    z = griddata((dire_c, hs), value, (x, y))
-
     _ax = fig.add_subplot(ax, projection='polar')
     _ax.set_title(title, fontsize=fontsize)
-    cf = _ax.contourf(x, y, z, cmap=cmap, levels=levels, alpha=alpha)
-    cbar = plt.colorbar(cf, location='bottom', ax=_ax, label='Factor (m)', format=FuncFormatter(lambda x, pos: '{:.1f}'.format(x)))
+    sc = _ax.scatter(np.deg2rad(dire), hs, c=value, alpha=alpha, s=0.5, cmap=cmap, vmin=levels[0], vmax=levels[-1])
+    cbar = plt.colorbar(sc, location='bottom', ax=_ax, label='Factor (m)', format=FuncFormatter(lambda x, pos: '{:.1f}'.format(x)))
     cbar.ax.tick_params(labelsize=fontsize)
 
     if _max:

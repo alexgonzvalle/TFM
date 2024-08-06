@@ -1,26 +1,64 @@
 import numpy as np
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM
-from tensorflow.keras.optimizers import Adam
+import keras
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression
 import pandas as pd
+import itertools
 from data import get_data
 from stats import stats
 
 
-def create_sequences(value_in, seq_length):
-    dim_var = value_in.shape[1]
-    value_in = np.vstack((np.zeros((seq_length, dim_var)), value_in))
-    value_out = []
+# Función para crear el modelo de Keras
+def create_model_reg(xtrain_scaled, optimizer='sgd', learning_rate=0.01, n_layers=1, n_neurons=10):
+    model = keras.Sequential()
 
-    for i in range(len(value_in) - seq_length):
-        if dim_var == 1:
-            value_out.append(value_in[i + seq_length])
+    for i in range(n_layers):
+        if i == 0:
+            model.add(keras.layers.Dense(n_neurons, input_dim=xtrain_scaled.shape[1], activation='relu'))
         else:
-            value_out.append(value_in[i:i + seq_length])
+            model.add(keras.layers.Dense(n_neurons, activation='relu'))
+    model.add(keras.layers.Dense(1))
 
-    return np.array(value_out)
+    opt = None
+    if optimizer == 'adam':
+        opt = keras.optimizers.Adam(learning_rate=learning_rate)
+    elif optimizer == 'sgd':
+        opt = keras.optimizers.SGD(learning_rate=learning_rate)
+    elif optimizer == 'rmsprop':
+        opt = keras.optimizers.RMSprop(learning_rate=learning_rate)
+
+    model.compile(optimizer=opt, loss='mse', metrics=['mse'])
+    return model
+
+
+def get_best_model(X_train_norm, y_train, X_test_norm, y_test):
+    params = {
+        'optimizer': ['adam', 'sgd', 'rmsprop'],
+        'learning_rate': [0.001, 0.01, 0.1],
+        'n_layers': [1, 2, 3],
+        'n_neurons': [20, 50, 100]
+    }
+    param_combinations = list(itertools.product(*params.values()))
+
+    best_mse, best_params, model_reg = 100, None, None
+    for combination in param_combinations:
+        param_dict = dict(zip(params.keys(), combination))
+        print(param_dict)
+
+        model_reg_prop = create_model_reg(X_train_norm, **param_dict)
+
+        early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
+        history = model_reg_prop.fit(X_train_norm, y_train, epochs=100, batch_size=32, verbose=0,
+                                     validation_split=0.2, callbacks=[early_stop])
+
+        m_eval = model_reg_prop.evaluate(X_test_norm, y_test, batch_size=64)
+        mse = m_eval[1]
+
+        if mse < best_mse:
+            best_mse = mse
+            best_params = param_dict
+            model_reg = model_reg_prop
+
+    return best_mse, best_params, model_reg
 
 
 plot = True
@@ -38,49 +76,32 @@ for nombre in df_boya['Nombre']:
         goal_time -= pd.DateOffset(months=1)
         inds_time = np.argwhere(boya.time.values == goal_time)
     ind_time = int(inds_time[0])
+    ind_train = np.array([i for i in range(ind_time)])
+    ind_test = np.array([i for i in range(ind_time, len(boya.time))])
 
     # Separar las variables predictoras (X) y la variable objetivo (y)
-    X_train = np.array([boya.hs.values[:ind_time], boya.dir.values[:ind_time]]).T
-    X_test = np.array([boya.hs.values[ind_time:], boya.dir.values[ind_time:]]).T
+    X_gow_train = np.array([gow.hs.values[ind_train], np.deg2rad(gow.dir.values[ind_train])]).T
+    X_gow_test = np.array([gow.hs.values[ind_test], np.deg2rad(gow.dir.values[ind_test])]).T
+
+    X_cop_train = np.array([copernicus.VHM0.values[ind_train], np.deg2rad(copernicus.VMDR.values[ind_train])]).T
+    X_cop_test = np.array([copernicus.VHM0.values[ind_test], np.deg2rad(copernicus.VMDR.values[ind_test])]).T
 
     # Variable objetivo que queremos predecir/corregir
-    y_gow_train = gow.hs.values[:ind_time]
-    y_gow_test = gow.hs.values[ind_time:]
-
-    y_cop_train = copernicus.VHM0.values[:ind_time]
-    y_cop_test = copernicus.VHM0.values[ind_time:]
+    y_train = boya.hs.values[ind_train].reshape(-1, 1)
+    y_test = boya.hs.values[ind_test].reshape(-1, 1)
 
     # Normalizar los datos
-    scaler_x = StandardScaler()
-    scaler_y = StandardScaler()
+    scaler = StandardScaler()
 
-    X_train_norm = scaler_x.fit_transform(X_train)
-    y_norm_gow_train = scaler_y.fit_transform(y_gow_train)
-    y_norm_cop_train = scaler_y.fit_transform(y_cop_train)
+    X_gow_train_norm = scaler.fit_transform(X_gow_train)
+    X_gow_test_norm = scaler.fit_transform(X_gow_test)
+    X_cop_train_norm = scaler.fit_transform(X_cop_train)
+    X_cop_test_norm = scaler.fit_transform(X_cop_test)
 
-    # Crear secuencia
-    # seq_length = 24  # Longitud de la secuencia
-    # X_norm = create_sequences(X_norm, seq_length)
-    # y_norm_gow = create_sequences(y_norm_gow, seq_length)
-    # y_norm_cop = create_sequences(y_norm_cop, seq_length)
-
-    # Definir la arquitectura de la red neuronal
-    model = Sequential()
-    # model.add(LSTM(128, return_sequences=True, input_shape=(seq_length, X_norm.shape[2])))
-    # model.add(LSTM(64))
-    model.add(Dense(units=10, activation='sigmoid', input_dim=X_train_norm.shape[1]))
-    model.add(Dense(units=6, activation='sigmoid'))
-    model.add(Dense(1, activation='sigmoid'))  # Salida: Hs
-
-    # Compilar el modelo
-    model.compile(optimizer=Adam(learning_rate=0.001), loss='mse')
-
-    # Entrenar la red neuronal
-    history = model.fit(X_train_norm, y_norm_gow_train, epochs=100)
-
-    X_norm_gow = scaler_x.fit_transform(np.array([gow.hs.values, gow.dir.values]).T)
-    # X_norm_gow = create_sequences(X_norm_gow, seq_length)
-    y_cal_gow = scaler_y.inverse_transform(model.predict(X_norm_gow)).ravel()
+    # Encontrar los mejores hiperparámetros
+    _, best_params_gow, model_reg = get_best_model(X_gow_train_norm, y_train, X_gow_test_norm, y_test)
+    y_cal_gow_train = model_reg.predict(X_gow_train_norm).ravel()
+    y_cal_gow_test = model_reg.predict(X_gow_test_norm).ravel()
 
     # import matplotlib.pyplot as plt
     #
@@ -91,37 +112,32 @@ for nombre in df_boya['Nombre']:
     # plt.legend()
     # plt.show()
 
-    model.fit(X_train_norm, y_norm_cop_train, epochs=100)
-    X_norm_cop = scaler_x.fit_transform(np.array([copernicus.VHM0.values, copernicus.VMDR.values]).T)
-    # X_norm_cop = create_sequences(X_norm_cop, seq_length)
-    y_cal_cop = scaler_y.inverse_transform(model.predict(X_norm_cop)).ravel()
+    _, best_params_cop, model_reg = get_best_model(X_cop_train_norm, y_train, X_gow_test_norm, y_test)
+    y_cal_cop_train = model_reg.predict(X_cop_train_norm).ravel()
+    y_cal_cop_test = model_reg.predict(X_cop_test_norm).ravel()
 
     # Dibujar
     hs_max = 14  # int(max([boya.hs.max(), gow.hs.max(), copernicus.VHM0.max(), y_cal_gow.max(), y_cal_cop.max()])) + 1
+    y_cal_gow_plot_train = None
+    y_cal_gow_plot_test = None
+    y_gow_plot = None
+    y_cal_cop_plot_train = None
+    y_cal_cop_plot_test = None
+    y_cop_plot = None
 
-    x_plot = np.linspace(0, hs_max, 11)
-
-    modelo_regresion = LinearRegression()
-
-    modelo_regresion.fit(X_train[:, 0].reshape(-1, 1), y_gow_train)
-    y_gow_plot = modelo_regresion.predict(x_plot.reshape(-1, 1))
-
-    modelo_regresion.fit(X_train[:, 0].reshape(-1, 1), y_cal_gow)
-    y_cal_gow_plot = modelo_regresion.predict(x_plot.reshape(-1, 1))
-
-    modelo_regresion.fit(X_train[:, 0].reshape(-1, 1), y_cop_train)
-    y_cop_plot = modelo_regresion.predict(x_plot.reshape(-1, 1))
-
-    modelo_regresion.fit(X_train[:, 0].reshape(-1, 1), y_cal_cop)
-    y_cal_cop_plot = modelo_regresion.predict(x_plot.reshape(-1, 1))
-
-    title = f'Modelo Red Neuronal {nombre}'
-    bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values, y_cal_gow, hs_max, y_gow_plot, y_cal_gow_plot,
+    title = f'Modelo Red Neuronal {nombre}. {best_params_gow}'
+    bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values,
+                                                    ind_train, y_cal_gow_train, y_cal_gow_plot_train,
+                                                    ind_test, y_cal_gow_test, y_cal_gow_plot_test,
+                                                    y_gow_plot, hs_max,
                                                     'GOW', title, c='purple', fname=f'plot/model/05_RedNeuronal/{nombre}_red_gow.png', plot=plot)
 
-    title = f'Modelo Red Neuronal {nombre}'
-    bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values, y_cal_cop, hs_max, y_cop_plot, y_cal_cop_plot,
+    title = f'Modelo Red Neuronal {nombre}. {best_params_cop}'
+    bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
+                                                    ind_train, y_cal_cop_train, y_cal_cop_plot_train,
+                                                    ind_test, y_cal_cop_test, y_cal_cop_plot_test,
+                                                    y_cop_plot, hs_max,
                                                     'Copernicus', title, c='orange', fname=f'plot/model/05_RedNeuronal/{nombre}_red_cop.png', plot=plot)
 
     df_res.loc[len(df_res.index)] = [nombre, 'Red_Neuronal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
-# df_res.to_csv('res.csv', index=False)
+df_res.to_csv('res.csv', index=False)
