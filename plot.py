@@ -15,12 +15,12 @@ def format_s(value, _):
     return f'{value:.0f} s'
 
 
-def plot_rose(fig, ax, dire, hs, title, c, alpha=1, _max=None, func_format=format_m, fontsize=6):
+def plot_rose(fig, ax, dire, hs, title, c, alpha=0.3, _max=None, func_format=format_m, fontsize=6):
     labels = ['N', 'N-E', 'E', 'S-E', 'S', 'S-W', 'W', 'N-W']
 
     _ax = fig.add_subplot(ax, projection='polar')
     _ax.set_title(title, fontsize=fontsize)
-    _ax.plot(np.deg2rad(dire), hs, 'o', color=c, alpha=alpha, markersize=1)
+    _ax.plot(np.deg2rad(dire), hs, 'o', color=c, alpha=alpha, markersize=0.5)
 
     if _max:
         _ax.set_rmax(_max)
@@ -34,9 +34,10 @@ def plot_rose(fig, ax, dire, hs, title, c, alpha=1, _max=None, func_format=forma
 
 def plot_rose_contourf(fig, ax, dire, hs, value, title, cmap, levels=None, alpha=1, _max=None, func_format=format_m, fontsize=6):
     labels = ['N', 'N-E', 'E', 'S-E', 'S', 'S-W', 'W', 'N-W']
+
     dire_c = np.deg2rad(dire)
-    _x = np.linspace(dire_c.min(), dire_c.max(), 100)
-    _y = np.linspace(hs.min(), hs.max(), 100)
+    _x = np.linspace(dire_c.min(), dire_c.max(), 36)
+    _y = np.linspace(hs.min(), hs.max(), 72)
     x, y = np.meshgrid(_x, _y)
     z = griddata((dire_c, hs), value, (x, y))
 
@@ -87,14 +88,17 @@ def plot_data(boya, copernicus, gow, title, fname=None, fontsize=6):
 
 
 def plot_stats(dir_boya, hs_boya, dir_model, hs_model,
-               x_train, y_cal_train, y_cal_train_plot,
-               x_test, y_cal_test, y_cal_test_plot,
+               ind_train, y_cal_train, y_cal_train_plot,
+               ind_test, y_cal_test, y_cal_test_plot,
                y_raw, y_max,
-               bias_model, rmse_model, pearson_model, si_model,
+               bias_model_train, rmse_model_train, pearson_model_train, si_model_train,
                bias_cal_train, rmse_cal_train, pearson_cal_train, si_cal_train,
+               bias_model_test, rmse_model_test, pearson_model_test, si_model_test,
                bias_cal_test, rmse_cal_test, pearson_cal_test, si_cal_test,
                name_model, title, c='', fname=None, fontsize=6):
     plt.rcParams.update({'font.size': fontsize})
+    size_p = 0.5
+    alpha = 0.3
 
     fig = plt.figure()
     plt.suptitle(title, fontsize=fontsize)
@@ -111,8 +115,8 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model,
 
     # Scatter Plot de Altura de ola de la Boya vs Altura de ola del Modelo
     ax3 = fig.add_subplot(gs[1, 0])
-    ax3.scatter(hs_boya, hs_model, color=c, s=2, alpha=0.6)
-    ax3.scatter(x_train, y_cal_train, color='green', s=2, alpha=0.6)
+    ax3.scatter(hs_boya[ind_train], hs_model[ind_train], color=c, s=size_p, alpha=alpha)
+    ax3.scatter(hs_boya[ind_train], y_cal_train, color='green', s=size_p, alpha=alpha)
     if y_raw is not None:
         ax3.plot(np.linspace(0, y_max, 11), y_raw, color=c, linestyle='--', linewidth=1)
     if y_cal_train_plot is not None:
@@ -120,30 +124,30 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model,
     ax3.plot([0, y_max], [0, y_max], color='black', linewidth=0.5, alpha=0.7)
     ax3.set_xlabel(r'$Hs_{Boya} (m)$', fontsize=fontsize)
     ax3.set_ylabel('Hs (m)', fontsize=fontsize)
-    ax3.set_title(f'Train. Tamaño de la muestra: {len(x_train)}', fontsize=fontsize)
+    ax3.set_title(f'Train. Tamaño de la muestra: {len(ind_train)}', fontsize=fontsize)
     ax3.grid(True)
     ax3.set_aspect('equal', 'box')
 
     ax3.text(0.01, 0.95, 'bias: ', fontsize=fontsize, transform=plt.gca().transAxes)
-    ax3.text(0.15, 0.95, f'{bias_model:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
+    ax3.text(0.15, 0.95, f'{bias_model_train:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
     ax3.text(0.35, 0.95, f'{bias_cal_train:.4f}', color='green', fontsize=fontsize, transform=plt.gca().transAxes)
 
     ax3.text(0.01, 0.9, 'rmse: ', fontsize=fontsize, transform=plt.gca().transAxes)
-    ax3.text(0.17, 0.9, f'{rmse_model:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
+    ax3.text(0.17, 0.9, f'{rmse_model_train:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
     ax3.text(0.4, 0.9, f'{rmse_cal_train:.4f}', color='green', fontsize=fontsize, transform=plt.gca().transAxes)
 
     ax3.text(0.01, 0.85, 'Pearson: ', fontsize=fontsize, transform=plt.gca().transAxes)
-    ax3.text(0.25, 0.85, f'{pearson_model:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
+    ax3.text(0.25, 0.85, f'{pearson_model_train:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
     ax3.text(0.45, 0.85, f'{pearson_cal_train:.4f}', color='green', fontsize=fontsize, transform=plt.gca().transAxes)
 
     ax3.text(0.01, 0.8, 'SI: ', fontsize=fontsize, transform=plt.gca().transAxes)
-    ax3.text(0.15, 0.8, f'{si_model:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
+    ax3.text(0.15, 0.8, f'{si_model_train:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
     ax3.text(0.35, 0.8, f'{si_cal_train:.4f}', color='green', fontsize=fontsize, transform=plt.gca().transAxes)
 
     # Scatter Plot de Altura de ola de la Boya vs Altura de ola del Modelo
     ax4 = fig.add_subplot(gs[1, 1])
-    ax4.scatter(hs_boya, hs_model, color=c, s=2, alpha=0.6)
-    ax4.scatter(x_test, y_cal_test, color='green', s=2, alpha=0.6)
+    ax4.scatter(hs_boya[ind_test], hs_model[ind_test], color=c, s=size_p, alpha=alpha)
+    ax4.scatter(hs_boya[ind_test], y_cal_test, color='green', s=size_p, alpha=alpha)
     if y_raw is not None:
         ax4.plot(np.linspace(0, y_max, 11), y_raw, color=c, linestyle='--', linewidth=1)
     if y_cal_test_plot is not None:
@@ -151,27 +155,26 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model,
     ax4.plot([0, y_max], [0, y_max], color='black', linewidth=0.5, alpha=0.7)
     ax4.set_xlabel(r'$Hs_{Boya} (m)$', fontsize=fontsize)
     ax4.set_ylabel('Hs (m)', fontsize=fontsize)
-    ax4.set_title(f'Test. Tamaño de la muestra: {len(x_test)}', fontsize=fontsize)
+    ax4.set_title(f'Test. Tamaño de la muestra: {len(ind_test)}', fontsize=fontsize)
     ax4.grid(True)
     ax4.set_aspect('equal', 'box')
 
     ax4.text(0.01, 0.95, 'bias: ', fontsize=fontsize, transform=plt.gca().transAxes)
-    ax4.text(0.15, 0.95, f'{bias_model:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
+    ax4.text(0.15, 0.95, f'{bias_model_test:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
     ax4.text(0.35, 0.95, f'{bias_cal_test:.4f}', color='green', fontsize=fontsize, transform=plt.gca().transAxes)
 
     ax4.text(0.01, 0.9, 'rmse: ', fontsize=fontsize, transform=plt.gca().transAxes)
-    ax4.text(0.17, 0.9, f'{rmse_model:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
+    ax4.text(0.17, 0.9, f'{rmse_model_test:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
     ax4.text(0.4, 0.9, f'{rmse_cal_test:.4f}', color='green', fontsize=fontsize, transform=plt.gca().transAxes)
 
     ax4.text(0.01, 0.85, 'Pearson: ', fontsize=fontsize, transform=plt.gca().transAxes)
-    ax4.text(0.25, 0.85, f'{pearson_model:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
+    ax4.text(0.25, 0.85, f'{pearson_model_test:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
     ax4.text(0.45, 0.85, f'{pearson_cal_test:.4f}', color='green', fontsize=fontsize, transform=plt.gca().transAxes)
 
     ax4.text(0.01, 0.8, 'SI: ', fontsize=fontsize, transform=plt.gca().transAxes)
-    ax4.text(0.15, 0.8, f'{si_model:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
+    ax4.text(0.15, 0.8, f'{si_model_test:.4f}', color=c, fontsize=fontsize, transform=plt.gca().transAxes)
     ax4.text(0.35, 0.8, f'{si_cal_test:.4f}', color='green', fontsize=fontsize, transform=plt.gca().transAxes)
 
-    # Distribuccion acumulada de la altura de ola
     # Rosa de Altura de ola Calibrada / Model
     factor_hs = np.hstack((y_cal_train, y_cal_test)) / hs_model
     plot_rose_contourf(fig, gs[1, 2], dir_model, hs_model, factor_hs, r'$Hs_{Calibrada} / Hs_{' + name_model + '}$',

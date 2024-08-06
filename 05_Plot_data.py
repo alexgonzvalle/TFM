@@ -2,15 +2,23 @@ import pandas as pd
 from data import get_data
 from plot import plot_data
 from scipy.io import savemat
+import numpy as np
+import datetime as dt
+
+
+def to_datenum(value_datetime):
+    return 366 + value_datetime.toordinal() + (value_datetime - dt.datetime.fromordinal(value_datetime.toordinal())).total_seconds() / (24 * 60 * 60)
 
 
 df_boya = pd.read_csv('boyas.csv')
 for nombre in df_boya['Nombre']:
     boya, copernicus, gow = get_data(nombre)
 
-    savemat(f'data/processed/boya_{nombre}.mat', {'hs': boya.hs.values, 'tp': boya.tp.values, 'dir': boya.dir.values, 'time': boya.time.values})
-    savemat(f'data/processed/copernicus_{nombre}.mat', {'VHM0': copernicus.VHM0.values, 'tp': copernicus.VTPK.values, 'dir': copernicus.VMDR.values, 'time': copernicus.time.values})
-    savemat(f'data/processed/gow_{nombre}.mat', {'hs': gow.hs.values, 'tp': gow.tp.values, 'dir': gow.dir.values, 'time': gow.time.values})
+    time = np.array([to_datenum(dt.datetime.utcfromtimestamp(t.tolist()/1e9)) for t in boya.time.values])
+
+    savemat(f'data/processed/boya_{nombre}.mat', {'hs': boya.hs.values, 'tp': boya.tp.values, 'dir': boya.dir.values, 'time': time})
+    savemat(f'data/processed/copernicus_{nombre}.mat', {'VHM0': copernicus.VHM0.values, 'tp': copernicus.VTPK.values, 'dir': copernicus.VMDR.values, 'time': time})
+    savemat(f'data/processed/gow_{nombre}.mat', {'hs': gow.hs.values, 'tp': gow.tp.values, 'dir': gow.dir.values, 'time': time})
 
     # time_str = boya["time"].dt.strftime('%d/%m/%Y')
     # title = f'{nombre}. {time_str.values[0]} - {time_str.values[-1]} (N={len(time_str)})'

@@ -24,17 +24,19 @@ for nombre in df_boya['Nombre']:
         goal_time -= pd.DateOffset(months=1)
         inds_time = np.argwhere(boya.time.values == goal_time)
     ind_time = int(inds_time[0])
+    ind_train = np.array([i for i in range(ind_time)])
+    ind_test = np.array([i for i in range(ind_time, len(boya.time))])
 
     # Separar las variables predictoras (X) y la variable objetivo (y)
-    X_train = boya.hs.values[:ind_time]
-    X_test = boya.hs.values[ind_time:]
+    X_train = boya.hs.values[ind_train]
+    X_test = boya.hs.values[ind_test]
 
     # Variable objetivo que queremos predecir/corregir
-    y_gow_train = gow.hs.values[:ind_time]
-    y_gow_test = gow.hs.values[ind_time:]
+    y_gow_train = gow.hs.values[ind_train]
+    y_gow_test = gow.hs.values[ind_test]
 
-    y_cop_train = copernicus.VHM0.values[:ind_time]
-    y_cop_test = copernicus.VHM0.values[ind_time:]
+    y_cop_train = copernicus.VHM0.values[ind_train]
+    y_cop_test = copernicus.VHM0.values[ind_test]
 
     # Modelo
     params, params_covariance = curve_fit(model_function, X_train, y_gow_train, p0=[1, 1])
@@ -82,15 +84,15 @@ for nombre in df_boya['Nombre']:
 
     title = f'Modelo No Lineal {nombre}: y_cal = {((1 / beta_gow) ** (1 / gamma_gow)):.2f}*Hs^{(1 / gamma_gow):.2f}'
     bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values,
-                                                    X_train.ravel(), y_cal_gow_train, y_cal_gow_plot_train,
-                                                    X_test.ravel(), y_cal_gow_test, y_cal_gow_plot_test,
+                                                    ind_train, y_cal_gow_train, y_cal_gow_plot_train,
+                                                    ind_test, y_cal_gow_test, y_cal_gow_plot_test,
                                                     y_gow_plot, hs_max,
                                                     'GOW', title, c='purple', fname=f'plot/model/02_NoLineal/{nombre}_noLineal_gow.png', plot=plot)
 
     title = f'Modelo No Lineal {nombre}: y_cal = {((1 / beta_cop) ** (1 / gamma_cop)):.2f}*Hs^{(1 / gamma_cop):.2f}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
-                                                    X_train.ravel(), y_cal_cop_train, y_cal_cop_plot_train,
-                                                    X_test.ravel(), y_cal_cop_test, y_cal_cop_plot_test,
+                                                    ind_train, y_cal_cop_train, y_cal_cop_plot_train,
+                                                    ind_test, y_cal_cop_test, y_cal_cop_plot_test,
                                                     y_cop_plot, hs_max,
                                                     'Copernicus', title, c='orange', fname=f'plot/model/02_NoLineal/{nombre}_noLineal_cop.png', plot=plot)
 
