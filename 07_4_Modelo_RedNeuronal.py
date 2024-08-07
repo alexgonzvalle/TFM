@@ -130,14 +130,14 @@ for nombre in df_boya['Nombre']:
                                                     ind_train, y_cal_gow_train, y_cal_gow_plot_train,
                                                     ind_test, y_cal_gow_test, y_cal_gow_plot_test,
                                                     y_gow_plot, hs_max,
-                                                    'GOW', title, c='purple', fname=f'plot/model/05_RedNeuronal/{nombre}_red_gow.png', plot=plot)
+                                                    'GOW', title, c='purple', fname=f'plot/model/04_RedNeuronal/{nombre}_red_gow.png', plot=plot)
 
     title = f'Modelo Red Neuronal {nombre}. {best_params_cop}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
                                                     ind_train, y_cal_cop_train, y_cal_cop_plot_train,
                                                     ind_test, y_cal_cop_test, y_cal_cop_plot_test,
                                                     y_cop_plot, hs_max,
-                                                    'Copernicus', title, c='orange', fname=f'plot/model/05_RedNeuronal/{nombre}_red_cop.png', plot=plot)
+                                                    'Copernicus', title, c='orange', fname=f'plot/model/04_RedNeuronal/{nombre}_red_cop.png', plot=plot)
 
     df_res.loc[len(df_res.index)] = [nombre, 'Red_Neuronal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)
