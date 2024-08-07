@@ -5,8 +5,8 @@ import datetime as dt
 import numpy as np
 
 # Load the data
-df = pd.read_csv('data/raw/boyas/PdE/17419_28078_2838_ALL_19930429073238_20240710073238.csv', sep='\t', header=1)
-name = 'Mahon'
+df = pd.read_csv('data/raw/boyas/PdE/17418_28069_2136_ALL_19901107082707_20240710072707.csv', sep='\t', header=1)
+name = 'Bilbao-Vizcaya'
 
 # Tiempo
 time = np.array([dt.datetime.strptime(t, '%Y %m %d %H') for t in df['Fecha (GMT)'].tolist()])
@@ -22,7 +22,7 @@ ds_hs = xr.Dataset({'hs': ('time', hs)},
 # Tm02
 tm02 = np.array(df['Periodo Medio Tm02(s)'].tolist())
 tm02[tm02 == -9999.9] = np.nan
-ds_tm02 = xr.Dataset({'tm02': ('time', tm02)},
+ds_tm02 = xr.Dataset({'t02': ('time', tm02)},
                      coords={'time': time}
                      )
 
@@ -36,7 +36,7 @@ ds_tp = xr.Dataset({'tp': ('time', tp)},
 # Dir_m
 dm = np.array(df['Direcc. Media de Proced.(0=N,90=E)'].tolist())
 dm[dm == -9999.9] = np.nan
-ds_dm = xr.Dataset({'dm': ('time', dm)},
+ds_dm = xr.Dataset({'dir': ('time', dm)},
                    coords={'time': time}
                    )
 
@@ -55,18 +55,18 @@ ds['hs'].attrs = dict({'standard_name': 'wave_significant_height',
                        'long_name': 'Wave significant height',
                        'units': 'm'})
 
-ds['tm02'].attrs = dict({'standard_name': 'mean_period_tm02',
-                         'long_name': 'Mean Period Tm02',
-                         'units': 's'})
+ds['t02'].attrs = dict({'standard_name': 'wave_mean_period',
+                        'long_name': 'Wave mean period',
+                        'units': 's'})
 
 ds['tp'].attrs = dict({'standard_name': 'peak_wave_period',
                        'long_name': 'Peak wave period',
                        'units': 's'})
 
-ds['dm'].attrs = dict({'standard_name': 'wave_mean_direction',
-                       'long_name': 'Wave mean direction',
-                       'units': 'degrees',
-                       'units_long_name': 'degrees_from_north_0 º-east_90 º'})
+ds['dir'].attrs = dict({'standard_name': 'wave_mean_direction',
+                        'long_name': 'Wave mean direction',
+                        'units': 'degrees',
+                        'units_long_name': 'degrees_from_north_0 º-east_90 º'})
 
 ds.to_netcdf(f'data/raw/boyas/PdE/{name}_Ext.nc')
 

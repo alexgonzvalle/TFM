@@ -58,22 +58,27 @@ def plot_data(boya, copernicus, gow, title, fname=None, fontsize=6):
 
     fig = plt.figure()
     plt.suptitle(title)
-    gs = GridSpec(nrows=2, ncols=3)
+    gs = GridSpec(nrows=3, ncols=3)
 
     hs_max = max(boya.hs.max(), copernicus.VHM0.max(), gow.hs.max()) + 1
+    t02_max = max(boya.t02.max(), copernicus.VTM02.max(), gow.t02.max()) + 1
     tp_max = max(boya.tp.max(), copernicus.VTPK.max(), gow.tp.max()) + 1
+    t_max = max(t02_max, tp_max)
 
     # Boya
     plot_rose(fig, gs[0, 0], boya.dir, boya.hs, 'Hs Boya', 'blue', _max=hs_max, func_format=format_m, fontsize=fontsize)
-    plot_rose(fig, gs[1, 0], boya.dir, boya.tp, 'Tp Boya', 'blue', _max=tp_max, func_format=format_s, fontsize=fontsize)
+    plot_rose(fig, gs[1, 0], boya.dir, boya.t02, 'T02 Boya', 'blue', _max=t_max, func_format=format_s, fontsize=fontsize)
+    plot_rose(fig, gs[2, 0], boya.dir, boya.tp, 'Tp Boya', 'blue', _max=t_max, func_format=format_s, fontsize=fontsize)
 
     # GOW
     plot_rose(fig, gs[0, 1], gow.dir, gow.hs, 'Hs gow', 'purple', _max=hs_max, func_format=format_m, fontsize=fontsize)
-    plot_rose(fig, gs[1, 1], gow.dir, gow.tp, 'Tp gow', 'purple', _max=tp_max, func_format=format_s, fontsize=fontsize)
+    plot_rose(fig, gs[1, 1], gow.dir, gow.t02, 'T02 gow', 'purple', _max=t_max, func_format=format_s, fontsize=fontsize)
+    plot_rose(fig, gs[2, 1], gow.dir, gow.tp, 'Tp gow', 'purple', _max=t_max, func_format=format_s, fontsize=fontsize)
 
     # copernicus
     plot_rose(fig, gs[0, 2], copernicus.VMDR, copernicus.VHM0, 'Hs copernicus', 'orange', _max=hs_max, func_format=format_m, fontsize=fontsize)
-    plot_rose(fig, gs[1, 2], copernicus.VMDR, copernicus.VTPK, 'Tp copernicus', 'orange', _max=tp_max, func_format=format_s, fontsize=fontsize)
+    plot_rose(fig, gs[1, 2], copernicus.VMDR, copernicus.VTM02, 'T02 copernicus', 'orange', _max=t_max, func_format=format_s, fontsize=fontsize)
+    plot_rose(fig, gs[2, 2], copernicus.VMDR, copernicus.VTPK, 'Tp copernicus', 'orange', _max=t_max, func_format=format_s, fontsize=fontsize)
 
     plt.tight_layout()
 
