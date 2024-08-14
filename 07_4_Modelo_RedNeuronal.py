@@ -30,7 +30,8 @@ def create_model_reg(xtrain_scaled, optimizer='sgd', learning_rate=0.01, n_layer
     return model
 
 
-def get_best_model(X_train_norm, y_train, X_test_norm, y_test):
+def get_best_model(X_train_norm, y_train, X_test_norm, y_test, loc, model):
+    out = []
     params = {
         'optimizer': ['adam', 'sgd', 'rmsprop'],
         'learning_rate': [0.001, 0.01, 0.1],
@@ -53,12 +54,17 @@ def get_best_model(X_train_norm, y_train, X_test_norm, y_test):
         m_eval = model_reg_prop.evaluate(X_test_norm, y_test, batch_size=64)
         mse = m_eval[1]
 
+        param_dict['mse'] = mse
+        param_dict['loc'] = loc
+        param_dict['model'] = model
+        out.append(param_dict)
+
         if mse < best_mse:
             best_mse = mse
             best_params = param_dict
             model_reg = model_reg_prop
 
-    return best_mse, best_params, model_reg
+    return best_mse, best_params, model_reg, out
 
 
 plot = True
@@ -99,9 +105,17 @@ for nombre in df_boya['Nombre']:
     X_cop_test_norm = scaler.fit_transform(X_cop_test)
 
     # Encontrar los mejores hiperparámetros
-    _, best_params_gow, model_reg = get_best_model(X_gow_train_norm, y_train, X_gow_test_norm, y_test)
-    y_cal_gow_train = model_reg.predict(X_gow_train_norm).ravel()
-    y_cal_gow_test = model_reg.predict(X_gow_test_norm).ravel()
+    early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
+    optimizer = 'adam'
+    n = 0.01
+    n_layers = 1
+    n_neurons = 20
+
+    # _, best_params_gow, model_reg, out_gow_c = get_best_model(X_gow_train_norm, y_train, X_gow_test_norm, y_test, nombre, 'GOW')
+    model_reg = create_model_reg(X_gow_train_norm, optimizer=optimizer, learning_rate=n, n_layers=n_layers, n_neurons=n_neurons)
+    history = model_reg.fit(X_gow_train_norm, y_train, epochs=100, batch_size=32, validation_split=0.2, callbacks=[early_stop])
+    y_cal_gow_train = model_reg.predict(X_gow_train_norm, batch_size=64).ravel()
+    y_cal_gow_test = model_reg.predict(X_gow_test_norm, batch_size=64).ravel()
 
     # import matplotlib.pyplot as plt
     #
@@ -112,9 +126,11 @@ for nombre in df_boya['Nombre']:
     # plt.legend()
     # plt.show()
 
-    _, best_params_cop, model_reg = get_best_model(X_cop_train_norm, y_train, X_gow_test_norm, y_test)
-    y_cal_cop_train = model_reg.predict(X_cop_train_norm).ravel()
-    y_cal_cop_test = model_reg.predict(X_cop_test_norm).ravel()
+    # _, best_params_cop, model_reg, out_cop_c = get_best_model(X_cop_train_norm, y_train, X_gow_test_norm, y_test, nombre, 'COP')
+    model_reg = create_model_reg(X_cop_train_norm, optimizer=optimizer, learning_rate=n, n_layers=n_layers, n_neurons=n_neurons)
+    history = model_reg.fit(X_cop_train_norm, y_train, epochs=100, batch_size=32, validation_split=0.2, callbacks=[early_stop])
+    y_cal_cop_train = model_reg.predict(X_cop_train_norm, batch_size=64).ravel()
+    y_cal_cop_test = model_reg.predict(X_cop_test_norm, batch_size=64).ravel()
 
     # Dibujar
     hs_max = 14  # int(max([boya.hs.max(), gow.hs.max(), copernicus.VHM0.max(), y_cal_gow.max(), y_cal_cop.max()])) + 1
@@ -125,14 +141,14 @@ for nombre in df_boya['Nombre']:
     y_cal_cop_plot_test = None
     y_cop_plot = None
 
-    title = f'Modelo Red Neuronal {nombre}. {best_params_gow}'
+    title = f'Modelo Red Neuronal {nombre}. Optimizador: {optimizer}, n:{n}, capas: {n_layers}, nueronas: {n_neurons}'
     bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values,
                                                     ind_train, y_cal_gow_train, y_cal_gow_plot_train,
                                                     ind_test, y_cal_gow_test, y_cal_gow_plot_test,
                                                     y_gow_plot, hs_max,
                                                     'GOW', title, c='purple', fname=f'plot/model/04_RedNeuronal/{nombre}_red_gow.png', plot=plot)
 
-    title = f'Modelo Red Neuronal {nombre}. {best_params_cop}'
+    title = f'Modelo Red Neuronal {nombre}. Optimizador: {optimizer}, n:{n}, capas: {n_layers}, nueronas: {n_neurons}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
                                                     ind_train, y_cal_cop_train, y_cal_cop_plot_train,
                                                     ind_test, y_cal_cop_test, y_cal_cop_plot_test,
