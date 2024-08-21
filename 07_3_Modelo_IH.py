@@ -53,7 +53,7 @@ for nombre in df_boya['Nombre']:
     title = f'Modelo IH {nombre}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
                                                     ind_train, y_cal_cop_train, ind_test, y_cal_cop_test,
-                                                    'Copernicus', title, c='orange', plot=plot, fname=f'plot/model/03_IH/{nombre}_ih_cop.png')
+                                                    'IBI', title, c='orange', plot=plot, fname=f'plot/model/03_IH/{nombre}_ih_ibi.png')
 
     df_res.loc[len(df_res.index)] = [nombre, 'IH', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)

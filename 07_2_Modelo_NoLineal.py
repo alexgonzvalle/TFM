@@ -59,15 +59,16 @@ for nombre in df_boya['Nombre']:
     # plt.show()
 
     # Dibujar
-    title = f'Modelo No Lineal {nombre}: y_cal = {((1 / beta_gow) ** (1 / gamma_gow)):.2f}*Hs^{(1 / gamma_gow):.2f}'
+    aux_title = r'$Hs_{cal}$'
+    title = f'Modelo No Lineal {nombre}: {aux_title}={((1 / beta_gow) ** (1 / gamma_gow)):.2f}*Hs^{(1 / gamma_gow):.2f}'
     bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values,
                                                     ind_train, y_cal_gow_train, ind_test, y_cal_gow_test,
                                                     'GOW', title, c='purple', plot=plot, fname=f'plot/model/02_NoLineal/{nombre}_noLineal_gow.png')
 
-    title = f'Modelo No Lineal {nombre}: y_cal = {((1 / beta_cop) ** (1 / gamma_cop)):.2f}*Hs^{(1 / gamma_cop):.2f}'
+    title = f'Modelo No Lineal {nombre}: {aux_title}={((1 / beta_cop) ** (1 / gamma_cop)):.2f}*Hs^{(1 / gamma_cop):.2f}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
                                                     ind_train, y_cal_cop_train, ind_test, y_cal_cop_test,
-                                                    'Copernicus', title, c='orange', plot=plot, fname=f'plot/model/02_NoLineal/{nombre}_noLineal_cop.png')
+                                                    'IBI', title, c='orange', plot=plot, fname=f'plot/model/02_NoLineal/{nombre}_noLineal_ibi.png')
 
     df_res.loc[len(df_res.index)] = [nombre, 'No_Lineal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)

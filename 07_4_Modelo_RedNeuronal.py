@@ -67,7 +67,7 @@ def get_best_model(X_train_norm, y_train, X_test_norm, y_test, loc, model):
     return best_mse, best_params, model_reg, out
 
 
-plot = True
+plot = False
 df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 
@@ -141,7 +141,7 @@ for nombre in df_boya['Nombre']:
     title = f'Modelo Red Neuronal {nombre}. Optimizador: {optimizer}, n:{n}, capas: {n_layers}, nueronas: {n_neurons}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
                                                     ind_train, y_cal_cop_train,  ind_test, y_cal_cop_test,
-                                                    'Copernicus', title, c='orange', plot=plot, fname=f'plot/model/04_RedNeuronal/{nombre}_red_cop.png')
+                                                    'IBI', title, c='orange', plot=plot, fname=f'plot/model/04_RedNeuronal/{nombre}_red_ibi.png')
 
-    df_res.loc[len(df_res.index)] = [nombre, 'Red_Neuronal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
+    df_res.loc[len(df_res.index)] = [nombre, 'ANN', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)

@@ -25,16 +25,23 @@ for nombre in df_res['Nombre'].unique():
         si_gow[i] = df_res_model['si_gow']
         si_cop[i] = df_res_model['si_cop']
 
-    plot_stats_comp(nombre, models, bias_gow, bias_cop, rmse_gow, rmse_cop, p_gow, p_cop, si_gow, si_cop, f'plot/model/00_Comp/{nombre}.png')
+    # plot_stats_comp(nombre, models, bias_gow, bias_cop, rmse_gow, rmse_cop, p_gow, p_cop, si_gow, si_cop, f'plot/model/00_Comp/{nombre}.png')
 
-bias_gow_mean = [df_res[df_res['Modelo'] == model]['bias_gow'].mean() for model in models]
-bias_cop_mean = [df_res[df_res['Modelo'] == model]['bias_cop'].mean() for model in models]
-rmse_gow_mean = [df_res[df_res['Modelo'] == model]['rmse_gow'].mean() for model in models]
-rmse_cop_mean = [df_res[df_res['Modelo'] == model]['rmse_cop'].mean() for model in models]
-p_gow_mean = [df_res[df_res['Modelo'] == model]['pearson_gow'].mean() for model in models]
-p_cop_mean = [df_res[df_res['Modelo'] == model]['pearson_cop'].mean() for model in models]
-si_gow_mean = [df_res[df_res['Modelo'] == model]['si_gow'].mean() for model in models]
-si_cop_mean = [df_res[df_res['Modelo'] == model]['si_cop'].mean() for model in models]
+bias_gow = np.array([df_res[df_res['Modelo'] == model]['bias_gow'] for model in models])
+bias_cop = np.array([df_res[df_res['Modelo'] == model]['bias_cop'] for model in models])
+rmse_gow = np.array([df_res[df_res['Modelo'] == model]['rmse_gow'] for model in models])
+rmse_cop = np.array([df_res[df_res['Modelo'] == model]['rmse_cop'] for model in models])
+p_gow = np.array([df_res[df_res['Modelo'] == model]['pearson_gow'] for model in models])
+p_cop = np.array([df_res[df_res['Modelo'] == model]['pearson_cop'] for model in models])
+si_gow = np.array([df_res[df_res['Modelo'] == model]['si_gow'] for model in models])
+si_cop = np.array([df_res[df_res['Modelo'] == model]['si_cop'] for model in models])
 
-plot_stats_comp('Media', models, bias_gow_mean, bias_cop_mean, rmse_gow_mean, rmse_cop_mean, p_gow_mean, p_cop_mean, si_gow_mean, si_cop_mean,
+plot_stats_comp('Media GOW', models, bias_gow, rmse_gow, p_gow, si_gow, f'plot/model/00_Comp/mean_gow.png')
+plot_stats_comp('Media IBI', models, bias_cop, rmse_cop, p_cop, si_cop, f'plot/model/00_Comp/mean_ibi.png')
+
+plot_stats_comp('Media', models,
+                np.hstack(([bias_gow, bias_cop])),
+                np.hstack(([rmse_gow, rmse_cop])),
+                np.hstack(([p_gow, p_cop])),
+                np.hstack(([si_gow, si_cop])),
                 f'plot/model/00_Comp/mean.png')

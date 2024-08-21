@@ -63,7 +63,7 @@ def apply_kmeans(k_min, k_max, X_train_norm, X_train, y_train, X_test_norm, X_te
     return best_k, y_cal_train, y_cal_test
 
 
-plot = False
+plot = True
 df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 
@@ -101,8 +101,8 @@ for nombre in df_boya['Nombre']:
     X_cop_test_norm = scaler.fit_transform(X_cop_test)
 
     # Encontrar los mejores hiperparámetros
-    k_opt_gow, y_cal_gow_train, y_cal_gow_test = apply_kmeans(10, 501, X_gow_train_norm, X_gow_train, y_train, X_gow_test_norm, X_gow_test, y_test, nombre, 'gow', plot)
-    k_opt_cop, y_cal_cop_train, y_cal_cop_test = apply_kmeans(10, 501, X_cop_train_norm, X_cop_train, y_train, X_cop_test_norm, X_cop_test, y_test, nombre, 'cop', plot)
+    k_opt_gow, y_cal_gow_train, y_cal_gow_test = apply_kmeans(2, 501, X_gow_train_norm, X_gow_train, y_train, X_gow_test_norm, X_gow_test, y_test, nombre, 'gow', plot)
+    k_opt_cop, y_cal_cop_train, y_cal_cop_test = apply_kmeans(2, 501, X_cop_train_norm, X_cop_train, y_train, X_cop_test_norm, X_cop_test, y_test, nombre, 'cop', plot)
 
     # Dibujar
     title = f'Modelo KMeans {nombre}. K: {k_opt_gow}'
@@ -113,7 +113,7 @@ for nombre in df_boya['Nombre']:
     title = f'Modelo KMeans {nombre}. K: {k_opt_cop}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
                                                     ind_train, y_cal_cop_train, ind_test, y_cal_cop_test,
-                                                    'Copernicus', title, c='orange', plot=plot, fname=f'plot/model/05_KMeans/{nombre}_kmeans_cop.png')
+                                                    'IBI', title, c='orange', plot=plot, fname=f'plot/model/05_KMeans/{nombre}_kmeans_ibi.png')
 
     df_res.loc[len(df_res.index)] = [nombre, 'KMeans', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)
