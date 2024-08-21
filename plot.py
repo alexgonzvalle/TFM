@@ -89,9 +89,7 @@ def plot_data(boya, copernicus, gow, title, fname=None, fontsize=6):
 
 
 def plot_stats(dir_boya, hs_boya, dir_model, hs_model,
-               ind_train, y_cal_train, y_cal_train_plot,
-               ind_test, y_cal_test, y_cal_test_plot,
-               y_raw, y_max,
+               ind_train, y_cal_train, ind_test, y_cal_test, y_max,
                bias_model_train, rmse_model_train, pearson_model_train, si_model_train,
                bias_cal_train, rmse_cal_train, pearson_cal_train, si_cal_train,
                bias_model_test, rmse_model_test, pearson_model_test, si_model_test,
@@ -118,10 +116,6 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model,
     ax3 = fig.add_subplot(gs[1, 0])
     ax3.scatter(hs_boya[ind_train], hs_model[ind_train], color=c, s=size_p, alpha=alpha)
     ax3.scatter(hs_boya[ind_train], y_cal_train, color='green', s=size_p, alpha=alpha)
-    if y_raw is not None:
-        ax3.plot(np.linspace(0, y_max, 11), y_raw, color=c, linestyle='--', linewidth=1)
-    if y_cal_train_plot is not None:
-        ax3.plot(np.linspace(0, y_max, 11), y_cal_train_plot, color='green', linestyle='--', linewidth=1)
     ax3.plot([0, y_max], [0, y_max], color='black', linewidth=0.5, alpha=0.7)
     ax3.set_xlabel(r'$Hs_{Boya} (m)$', fontsize=fontsize)
     ax3.set_ylabel('Hs (m)', fontsize=fontsize)
@@ -149,10 +143,6 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model,
     ax4 = fig.add_subplot(gs[1, 1])
     ax4.scatter(hs_boya[ind_test], hs_model[ind_test], color=c, s=size_p, alpha=alpha)
     ax4.scatter(hs_boya[ind_test], y_cal_test, color='green', s=size_p, alpha=alpha)
-    if y_raw is not None:
-        ax4.plot(np.linspace(0, y_max, 11), y_raw, color=c, linestyle='--', linewidth=1)
-    if y_cal_test_plot is not None:
-        ax4.plot(np.linspace(0, y_max, 11), y_cal_test_plot, color='green', linestyle='--', linewidth=1)
     ax4.plot([0, y_max], [0, y_max], color='black', linewidth=0.5, alpha=0.7)
     ax4.set_xlabel(r'$Hs_{Boya} (m)$', fontsize=fontsize)
     ax4.set_ylabel('Hs (m)', fontsize=fontsize)
@@ -228,3 +218,22 @@ def plot_stats_comp(nombre, models, bias_gow, bias_cop, rmse_gow, rmse_cop, p_go
     if fname:
         plt.savefig(fname, dpi=300)
         plt.close(fig)
+
+
+def plot_mse_k(k, mse, fname=None):
+    fig, ax = plt.subplots()
+
+    ax.plot(k, mse)
+
+    ax.set_xlabel('k')
+    ax.set_ylabel('MSE')
+    ax.set_title('Evolucion del MSE en funcion de k')
+
+    plt.grid()
+    plt.tight_layout()
+
+    if fname:
+        plt.savefig(fname, dpi=300)
+        plt.close(fig)
+    else:
+        plt.show()

@@ -106,8 +106,8 @@ for nombre in df_boya['Nombre']:
 
     # Encontrar los mejores hiperparámetros
     early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
-    optimizer = 'adam'
-    n = 0.01
+    optimizer = 'sgd'
+    n = 0.001
     n_layers = 1
     n_neurons = 20
 
@@ -133,27 +133,15 @@ for nombre in df_boya['Nombre']:
     y_cal_cop_test = model_reg.predict(X_cop_test_norm, batch_size=64).ravel()
 
     # Dibujar
-    hs_max = 14  # int(max([boya.hs.max(), gow.hs.max(), copernicus.VHM0.max(), y_cal_gow.max(), y_cal_cop.max()])) + 1
-    y_cal_gow_plot_train = None
-    y_cal_gow_plot_test = None
-    y_gow_plot = None
-    y_cal_cop_plot_train = None
-    y_cal_cop_plot_test = None
-    y_cop_plot = None
-
     title = f'Modelo Red Neuronal {nombre}. Optimizador: {optimizer}, n:{n}, capas: {n_layers}, nueronas: {n_neurons}'
     bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values,
-                                                    ind_train, y_cal_gow_train, y_cal_gow_plot_train,
-                                                    ind_test, y_cal_gow_test, y_cal_gow_plot_test,
-                                                    y_gow_plot, hs_max,
-                                                    'GOW', title, c='purple', fname=f'plot/model/04_RedNeuronal/{nombre}_red_gow.png', plot=plot)
+                                                    ind_train, y_cal_gow_train, ind_test, y_cal_gow_test,
+                                                    'GOW', title, c='purple', plot=plot, fname=f'plot/model/04_RedNeuronal/{nombre}_red_gow.png')
 
     title = f'Modelo Red Neuronal {nombre}. Optimizador: {optimizer}, n:{n}, capas: {n_layers}, nueronas: {n_neurons}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
-                                                    ind_train, y_cal_cop_train, y_cal_cop_plot_train,
-                                                    ind_test, y_cal_cop_test, y_cal_cop_plot_test,
-                                                    y_cop_plot, hs_max,
-                                                    'Copernicus', title, c='orange', fname=f'plot/model/04_RedNeuronal/{nombre}_red_cop.png', plot=plot)
+                                                    ind_train, y_cal_cop_train,  ind_test, y_cal_cop_test,
+                                                    'Copernicus', title, c='orange', plot=plot, fname=f'plot/model/04_RedNeuronal/{nombre}_red_cop.png')
 
     df_res.loc[len(df_res.index)] = [nombre, 'Red_Neuronal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
 df_res.to_csv('res.csv', index=False)
