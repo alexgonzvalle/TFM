@@ -196,24 +196,24 @@ def plot_stats_comp(nombre, models, bias, rmse, p, si, fname=None, fontsize=6):
     ax[0, 0].set_title(nombre + ' - Bias', fontsize=fontsize)
     ax[0, 0].boxplot(bias.T, patch_artist=True, tick_labels=models)
     ax[0, 0].set_ylim(-1, 1)
-    ax[0, 0].tick_params(axis='both', labelsize=fontsize)
+    ax[0, 0].tick_params(axis='both', labelsize=fontsize, rotation=25)
     ax[0, 0].grid()
 
     ax[1, 0].set_title(nombre + ' - RMSE', fontsize=fontsize)
     ax[1, 0].boxplot(rmse.T, patch_artist=True, tick_labels=models)
-    ax[1, 0].tick_params(axis='both', labelsize=fontsize)
+    ax[1, 0].tick_params(axis='both', labelsize=fontsize, rotation=25)
     ax[1, 0].set_ylim(0, 1)
     ax[1, 0].grid()
 
     ax[0, 1].set_title(nombre + ' - Pearson', fontsize=fontsize)
     ax[0, 1].boxplot(p.T, patch_artist=True, tick_labels=models)
-    ax[0, 1].tick_params(axis='both', labelsize=fontsize)
+    ax[0, 1].tick_params(axis='both', labelsize=fontsize, rotation=25)
     ax[0, 1].set_ylim(-1, 1)
     ax[0, 1].grid()
 
     ax[1, 1].set_title(nombre + ' - SI', fontsize=fontsize)
     ax[1, 1].boxplot(si.T, patch_artist=True, tick_labels=models)
-    ax[1, 1].tick_params(axis='both', labelsize=fontsize)
+    ax[1, 1].tick_params(axis='both', labelsize=fontsize, rotation=25)
     ax[1, 1].set_ylim(0, 1)
     ax[1, 1].grid()
 

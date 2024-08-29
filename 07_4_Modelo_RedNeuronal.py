@@ -10,12 +10,13 @@ from stats import stats
 # Función para crear el modelo de Keras
 def create_model_reg(xtrain_scaled, optimizer='sgd', learning_rate=0.01, n_layers=1, n_neurons=10):
     model = keras.Sequential()
+    activation = 'relu'
 
     for i in range(n_layers):
         if i == 0:
-            model.add(keras.layers.Dense(n_neurons, input_dim=xtrain_scaled.shape[1], activation='relu'))
+            model.add(keras.layers.Dense(n_neurons, input_dim=xtrain_scaled.shape[1], activation=activation))
         else:
-            model.add(keras.layers.Dense(n_neurons, activation='relu'))
+            model.add(keras.layers.Dense(n_neurons, activation=activation))
     model.add(keras.layers.Dense(1))
 
     opt = None

@@ -14,7 +14,7 @@ def apply_kmeans(k_min, k_max, X_train_norm, X_train, y_train, X_test_norm, X_te
     mse_save = []
     best_mse, best_kmeans, best_factor_hs = 100, None, []
     for k in K:
-        model = KMeans(n_clusters=k, random_state=0, n_init='auto').fit(X_train_norm)
+        model = KMeans(n_clusters=k, random_state=1, n_init='auto').fit(X_train_norm)
 
         # import matplotlib.pyplot as plt
         # plt.scatter(X_train_norm[:, 1], X_train_norm[:, 0], c=best_kmeans.labels_, cmap='viridis', s=50)
@@ -34,7 +34,7 @@ def apply_kmeans(k_min, k_max, X_train_norm, X_train, y_train, X_test_norm, X_te
 
             y = y_train.ravel()[ind_train_c]
             y[y == 0] = np.NaN
-            factor_hs.append(np.nanmean(y/X_train[ind_train_c, 0]))
+            factor_hs.append(np.nanmean(y / X_train[ind_train_c, 0]))
             y_cal_test[ind_test_c] = X_test[ind_test_c, 0] * factor_hs[kk]
 
         mse = mean_squared_error(y_test.ravel(), y_cal_test)

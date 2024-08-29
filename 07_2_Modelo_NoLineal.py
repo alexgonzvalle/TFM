@@ -14,7 +14,7 @@ df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 
 # MODELO Polinomial
-for nombre in df_boya['Nombre']:
+for nombre in ['Dragonera']:#df_boya['Nombre']:
     boya, copernicus, gow = get_data(nombre)
 
     # Train y test
@@ -71,4 +71,4 @@ for nombre in df_boya['Nombre']:
                                                     'IBI', title, c='orange', plot=plot, fname=f'plot/model/02_NoLineal/{nombre}_noLineal_ibi.png')
 
     df_res.loc[len(df_res.index)] = [nombre, 'No_Lineal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
-df_res.to_csv('res.csv', index=False)
+# df_res.to_csv('res.csv', index=False)
