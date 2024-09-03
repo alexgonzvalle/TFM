@@ -14,7 +14,7 @@ df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 
 # MODELO Polinomial
-for nombre in ['Dragonera']:#df_boya['Nombre']:
+for nombre in df_boya['Nombre']:
     boya, copernicus, gow = get_data(nombre)
 
     # Train y test

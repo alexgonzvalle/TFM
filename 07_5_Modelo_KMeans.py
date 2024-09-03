@@ -63,7 +63,7 @@ def apply_kmeans(k_min, k_max, X_train_norm, X_train, y_train, X_test_norm, X_te
     return best_k, y_cal_train, y_cal_test
 
 
-plot = True
+plot = False
 df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 
