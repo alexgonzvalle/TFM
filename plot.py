@@ -181,7 +181,7 @@ def plot_stats(dir_boya, hs_boya, dir_model, hs_model,
 
     # Rosa de Altura de ola Calibrada / Model
     factor_hs = hs_calibrada / hs_model
-    plot_rose_contourf(fig, gs[1, 2], dir_model, hs_calibrada, factor_hs, r'$Hs_{Calibrada} / Hs_{' + name_model + '}$',
+    plot_rose_contourf(fig, gs[1, 2], dir_model, hs_model, factor_hs, r'$Hs_{Calibrada} / Hs_{' + name_model + '}$',
                        cmap='seismic', levels=np.linspace(0, 2, 11), _max=hs_max, func_format=format_m)
 
     plt.tight_layout()
