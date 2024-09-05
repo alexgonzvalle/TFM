@@ -220,14 +220,24 @@ def plot_stats_comp(nombre, models, bias, rmse, p, si, fname=None, fontsize=6):
         plt.close(fig)
 
 
-def plot_mse_k(k, mse, fname=None):
+def plot_mse_k(k, k_sel, mse, fname=None):
+    k_opt = np.argmin(mse)
+
     fig, ax = plt.subplots()
 
     ax.plot(k, mse)
+    ax.set_xticks([2, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500])
+
+    ax.axvline(k_sel, color='red', linestyle='--')
+    ax.axhline(mse[k_sel], color='red', linestyle='--')
+    ax.axvline(k_opt, color='green', linestyle='--')
+    ax.axhline(mse[k_opt], color='green', linestyle='--')
+
+    ax.legend(['MSE', f'k_sel={k_sel}', f'MSE={mse[k_sel+2]:.4f}', f'k_opt={k_opt+2}', f'MSE={mse[k_opt]:.4f}'])
 
     ax.set_xlabel('k')
     ax.set_ylabel('MSE')
-    ax.set_title('Evolucion del MSE en funcion de k')
+    ax.set_title('Evolucion del MSE en funcion de ')
 
     plt.grid()
     plt.tight_layout()

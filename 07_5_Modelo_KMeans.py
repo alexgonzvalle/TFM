@@ -5,7 +5,6 @@ from sklearn.metrics import mean_squared_error
 import pandas as pd
 from data import get_data
 from stats import stats
-from plot import plot_mse_k
 
 
 def create_model_kmeans(K, X_train_norm, X_train, y_train, X_test_norm, X_test):
