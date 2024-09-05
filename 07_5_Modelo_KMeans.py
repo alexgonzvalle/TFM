@@ -8,20 +8,34 @@ from stats import stats
 from plot import plot_mse_k
 
 
-def apply_kmeans(k_min, k_max, X_train_norm, X_train, y_train, X_test_norm, X_test, y_test, nombre, name_model, plot=False):
+def create_model_kmeans(K, X_train_norm, X_train, y_train, X_test_norm, X_test):
+    model = KMeans(n_clusters=K, random_state=1, n_init='auto').fit(X_train_norm)
+    k_train = model.predict(X_train_norm)
+    k_test = model.predict(X_test_norm)
+    y_cal_train = np.zeros_like(X_train_norm[:, 0])
+    y_cal_test = np.zeros_like(X_test_norm[:, 0])
+
+    factor_hs = []
+    for k in range(K):
+        ind_train_c = np.argwhere(k_train == k).reshape(-1)
+        ind_test_c = np.argwhere(k_test == k).reshape(-1)
+
+        y = y_train.ravel()[ind_train_c]
+        y[y == 0] = np.NaN
+        factor_hs.append(np.nanmean(y / X_train[ind_train_c, 0]))
+
+        y_cal_train[ind_train_c] = X_train[ind_train_c, 0] * factor_hs[k]
+        y_cal_test[ind_test_c] = X_test[ind_test_c, 0] * factor_hs[k]
+
+    return y_cal_train, y_cal_test
+
+
+def get_best_kmeans(k_min, k_max, X_train_norm, X_train, y_train, X_test_norm, X_test, y_test, loc, name_model):
     K = range(k_min, k_max)
 
-    mse_save = []
-    best_mse, best_kmeans, best_factor_hs = 100, None, []
+    out = []
     for k in K:
         model = KMeans(n_clusters=k, random_state=1, n_init='auto').fit(X_train_norm)
-
-        # import matplotlib.pyplot as plt
-        # plt.scatter(X_train_norm[:, 1], X_train_norm[:, 0], c=best_kmeans.labels_, cmap='viridis', s=50)
-        # plt.scatter(best_kmeans.cluster_centers_[:, 1], best_kmeans.cluster_centers_[:, 0], s=200, c='red', marker='X')
-        # plt.xlabel('Direction')
-        # plt.ylabel('Hs')
-        # plt.show()
 
         k_train = model.predict(X_train_norm)
         k_test = model.predict(X_test_norm)
@@ -38,29 +52,15 @@ def apply_kmeans(k_min, k_max, X_train_norm, X_train, y_train, X_test_norm, X_te
             y_cal_test[ind_test_c] = X_test[ind_test_c, 0] * factor_hs[kk]
 
         mse = mean_squared_error(y_test.ravel(), y_cal_test)
-        mse_save.append(mse)
-        if mse < best_mse:
-            best_mse = mse
-            best_kmeans = model
-            best_factor_hs = factor_hs
 
-    if plot:
-        plot_mse_k(K, mse_save, fname=f'plot/model/05_KMeans/mse_k_{nombre}_{name_model}.png')
+        dict_res = {}
+        dict_res['k'] = k
+        dict_res['mse'] = mse
+        dict_res['loc'] = loc
+        dict_res['model'] = name_model
+        out.append(dict_res)
 
-    best_k = best_kmeans.n_clusters
-
-    k_train = best_kmeans.predict(X_train_norm)
-    k_test = best_kmeans.predict(X_test_norm)
-    y_cal_train = np.zeros_like(X_train_norm[:, 0])
-    y_cal_test = np.zeros_like(X_test_norm[:, 0])
-    for k in range(best_k):
-        ind_train_c = np.argwhere(k_train == k).reshape(-1)
-        ind_test_c = np.argwhere(k_test == k).reshape(-1)
-
-        y_cal_train[ind_train_c] = X_train[ind_train_c, 0] * best_factor_hs[k]
-        y_cal_test[ind_test_c] = X_test[ind_test_c, 0] * best_factor_hs[k]
-
-    return best_k, y_cal_train, y_cal_test
+    pd.DataFrame(out).to_csv('out_model_kmeans.csv', mode='a', index=False, header=False)
 
 
 plot = False
@@ -101,16 +101,20 @@ for nombre in df_boya['Nombre']:
     X_cop_test_norm = scaler.fit_transform(X_cop_test)
 
     # Encontrar los mejores hiperparámetros
-    k_opt_gow, y_cal_gow_train, y_cal_gow_test = apply_kmeans(2, 501, X_gow_train_norm, X_gow_train, y_train, X_gow_test_norm, X_gow_test, y_test, nombre, 'gow', plot)
-    k_opt_cop, y_cal_cop_train, y_cal_cop_test = apply_kmeans(2, 501, X_cop_train_norm, X_cop_train, y_train, X_cop_test_norm, X_cop_test, y_test, nombre, 'cop', plot)
+    k = 200
+    # get_best_kmeans(2, 501, X_gow_train_norm, X_gow_train, y_train, X_gow_test_norm, X_gow_test, y_test, nombre, 'GOW')
+    y_cal_gow_train, y_cal_gow_test = create_model_kmeans(k, X_gow_train_norm, X_gow_train, y_train, X_gow_test_norm, X_gow_test)
+
+    # get_best_kmeans(2, 501, X_cop_train_norm, X_cop_train, y_train, X_cop_test_norm, X_cop_test, y_test, nombre, 'COP')
+    y_cal_cop_train, y_cal_cop_test = create_model_kmeans(k, X_cop_train_norm, X_cop_train, y_train, X_cop_test_norm, X_cop_test)
 
     # Dibujar
-    title = f'Modelo KMeans {nombre}. K: {k_opt_gow}'
+    title = f'Modelo KMeans {nombre}. K: {k}'
     bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values,
                                                     ind_train, y_cal_gow_train, ind_test, y_cal_gow_test,
                                                     'GOW', title, c='purple', plot=plot, fname=f'plot/model/05_KMeans/{nombre}_kmeans_gow.png')
 
-    title = f'Modelo KMeans {nombre}. K: {k_opt_cop}'
+    title = f'Modelo KMeans {nombre}. K: {k}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
                                                     ind_train, y_cal_cop_train, ind_test, y_cal_cop_test,
                                                     'IBI', title, c='orange', plot=plot, fname=f'plot/model/05_KMeans/{nombre}_kmeans_ibi.png')
