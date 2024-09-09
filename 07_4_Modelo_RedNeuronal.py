@@ -71,7 +71,7 @@ def get_best_model(X_train, y_train, X_test, y_test, loc, model):
     pd.DataFrame(out).to_csv('out_model_red.csv', mode='a', index=False, header=False)
 
 
-plot = True
+plot = False
 df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 
@@ -149,5 +149,5 @@ for nombre in df_boya['Nombre']:
                                                     ind_train, y_cal_cop_train, ind_test, y_cal_cop_test,
                                                     'IBI', title, c='orange', plot=plot, fname=f'plot/model/04_RedNeuronal/{nombre}_red_ibi.png')
 
-    # df_res.loc[len(df_res.index)] = [nombre, 'Red Neuronal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
-# df_res.to_csv('res.csv', index=False)
+    df_res.loc[len(df_res.index)] = [nombre, 'Red Neuronal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
+df_res.to_csv('res.csv', index=False)
