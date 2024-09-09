@@ -24,36 +24,36 @@ for nombre in df_boya['Nombre']:
     # savemat(f'data/processed/copernicus_{nombre}.mat', {'hs': copernicus.VHM0.values, 't02': copernicus.VTM02.values, 'tp': copernicus.VTPK.values, 'dir': copernicus.VMDR.values, 'time': time})
     # savemat(f'data/processed/gow_{nombre}.mat', {'hs': gow.hs.values, 't02': gow.t02.values, 'tp': gow.tp.values, 'dir': gow.dir.values, 'time': time})
 
-    # time_str = boya["time"].dt.strftime('%d/%m/%Y')
-    # title = f'{nombre}. {time_str.values[0]} - {time_str.values[-1]} (N={len(time_str)})'
-    # plot_data(boya, copernicus, gow, title, f'plot/data_procesed/{nombre}.png')
+    time_str = boya["time"].dt.strftime('%d/%m/%Y')
+    title = f'{nombre}. {time_str.values[0]} - {time_str.values[-1]} (N={len(time_str)})'
+    plot_data(boya, copernicus, gow, title, f'plot/data_procesed/{nombre}.png')
 
     # ax_crontime.barh(nombre, copernicus.time.values[-1] - copernicus.time.values[0], left=copernicus.time.values[0], color='skyblue', edgecolor='black', alpha=0.8)
     # ax_crontime.text(copernicus.time.values[-1], nombre, f'{len(copernicus.time.values)}', ha='right', va='center', fontsize=lbl_size)
 
-    # Separar tiempos a la izquierda y derecha de goal_time
-    left_times = copernicus.time.values[copernicus.time.values < goal_time]
-    right_times = copernicus.time.values[copernicus.time.values >= goal_time]
-
-    # Dibujar la parte izquierda de la barra
-    if len(left_times) > 0:
-        ax_crontime.barh(nombre, left_times[-1] - left_times[0],
-                         left=left_times[0], color='skyblue',
-                         edgecolor='black', alpha=0.8)
-        ax_crontime.text(left_times[-1], nombre, f'{len(left_times)*100 / len(copernicus.time.values):.2f}%',
-                         ha='right', va='center', fontsize=lbl_size, color='black')
-
-    # Dibujar la parte derecha de la barra
-    if len(right_times) > 0:
-        ax_crontime.barh(nombre, right_times[-1] - right_times[0],
-                         left=right_times[0], color='darkblue',
-                         edgecolor='black', alpha=0.8)
-        ax_crontime.text(right_times[-1], nombre, f'{len(right_times)*100 / len(copernicus.time.values):.2f}%',
-                         ha='right', va='center', fontsize=lbl_size, color='black')
-
-ax_crontime.axvline(goal_time, color='red', linestyle='--', linewidth=2, label='Goal Time')
-ax_crontime.set_xlabel('Tiempo', fontsize=lbl_size)
-ax_crontime.set_ylabel('Boyas', fontsize=lbl_size)
-ax_crontime.set_title('Mediciones', fontsize=lbl_size)
-ax_crontime.grid(True)
-plt.show()
+#     # Separar tiempos a la izquierda y derecha de goal_time
+#     left_times = copernicus.time.values[copernicus.time.values < goal_time]
+#     right_times = copernicus.time.values[copernicus.time.values >= goal_time]
+#
+#     # Dibujar la parte izquierda de la barra
+#     if len(left_times) > 0:
+#         ax_crontime.barh(nombre, left_times[-1] - left_times[0],
+#                          left=left_times[0], color='skyblue',
+#                          edgecolor='black', alpha=0.8)
+#         ax_crontime.text(left_times[-1], nombre, f'{len(left_times)*100 / len(copernicus.time.values):.2f}%',
+#                          ha='right', va='center', fontsize=lbl_size, color='black')
+#
+#     # Dibujar la parte derecha de la barra
+#     if len(right_times) > 0:
+#         ax_crontime.barh(nombre, right_times[-1] - right_times[0],
+#                          left=right_times[0], color='darkblue',
+#                          edgecolor='black', alpha=0.8)
+#         ax_crontime.text(right_times[-1], nombre, f'{len(right_times)*100 / len(copernicus.time.values):.2f}%',
+#                          ha='right', va='center', fontsize=lbl_size, color='black')
+#
+# ax_crontime.axvline(goal_time, color='red', linestyle='--', linewidth=2, label='Goal Time')
+# ax_crontime.set_xlabel('Tiempo', fontsize=lbl_size)
+# ax_crontime.set_ylabel('Boyas', fontsize=lbl_size)
+# ax_crontime.set_title('Mediciones', fontsize=lbl_size)
+# ax_crontime.grid(True)
+# plt.show()

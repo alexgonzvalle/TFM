@@ -57,10 +57,10 @@ def plot_data(boya, copernicus, gow, title, fname=None, fontsize=6):
     plt.suptitle(title)
     gs = GridSpec(nrows=3, ncols=3)
 
-    hs_max = max(boya.hs.max(), copernicus.VHM0.max(), gow.hs.max()) + 1
-    t02_max = max(boya.t02.max(), copernicus.VTM02.max(), gow.t02.max()) + 1
-    tp_max = max(boya.tp.max(), copernicus.VTPK.max(), gow.tp.max()) + 1
-    t_max = max(t02_max, tp_max)
+    hs_max = 10  # max(boya.hs.max(), copernicus.VHM0.max(), gow.hs.max()) + 1
+    # t02_max = max(boya.t02.max(), copernicus.VTM02.max(), gow.t02.max()) + 1
+    # tp_max = max(boya.tp.max(), copernicus.VTPK.max(), gow.tp.max()) + 1
+    t_max = 20  # max(t02_max, tp_max)
 
     # Boya
     plot_rose(fig, gs[0, 0], boya.dir, boya.hs, r'$Hs_{Boya}$', 'blue', _max=hs_max, func_format=format_m, fontsize=fontsize)

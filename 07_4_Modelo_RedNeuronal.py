@@ -42,7 +42,7 @@ def create_model_reg(xtrain_scaled, optimizer='sgd', n_layers=1, n_neurons=10, l
     return model
 
 
-def get_best_model(X_train_norm, y_train, X_test_norm, y_test, loc, model):
+def get_best_model(X_train, y_train, X_test, y_test, loc, model):
     out = []
     params = {
         'optimizer': ['adam', 'sgd', 'rmsprop'],
@@ -55,12 +55,12 @@ def get_best_model(X_train_norm, y_train, X_test_norm, y_test, loc, model):
         param_dict = dict(zip(params.keys(), combination))
         print(param_dict)
 
-        model_prop = create_model_reg(X_train_norm, **param_dict)
+        model_prop = create_model_reg(X_train, **param_dict)
 
         early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
-        model_prop.fit(X_train_norm, y_train, epochs=100, batch_size=64, verbose=0, validation_split=0.2, callbacks=[early_stop])
+        model_prop.fit(X_train, y_train, epochs=100, batch_size=64, verbose=0, validation_split=0.2, callbacks=[early_stop])
 
-        m_eval = model_prop.evaluate(X_test_norm, y_test, batch_size=64)
+        m_eval = model_prop.evaluate(X_test, y_test, batch_size=64)
         mse = m_eval[1]
 
         param_dict['learning_rate'] = model_prop.optimizer.learning_rate.numpy()
@@ -109,15 +109,16 @@ for nombre in df_boya['Nombre']:
     X_cop_test_norm = scaler.fit_transform(X_cop_test)
 
     y_train_norm = scaler.fit_transform(y_train)
+    y_test_norm = scaler.fit_transform(y_test)
 
     # Encontrar los mejores hiperparámetros
     early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
     optimizer = 'sgd'
-    n = 0.0057
+    n = 0.0064
     n_layers = 1
     n_neurons = 100
 
-    # get_best_model(X_gow_train_norm, y_train, X_gow_test_norm, y_test, nombre, 'GOW')
+    # get_best_model(X_gow_train_norm, y_train_norm, X_gow_test_norm, y_test_norm, nombre, 'GOW')
     model_reg = create_model_reg(X_gow_train_norm, optimizer=optimizer, n_layers=n_layers, n_neurons=n_neurons, learning_rate=n)
     model_reg.fit(X_gow_train_norm, y_train_norm, epochs=100, batch_size=64, validation_split=0.2, callbacks=[early_stop])
     y_cal_gow_train = scaler.inverse_transform(model_reg.predict(X_gow_train_norm, batch_size=64)).ravel()
@@ -131,7 +132,7 @@ for nombre in df_boya['Nombre']:
     # plt.legend()
     # plt.show()
 
-    # get_best_model(X_cop_train_norm, y_train, X_gow_test_norm, y_test, nombre, 'COP')
+    # get_best_model(X_cop_train_norm, y_train_norm, X_gow_test_norm, y_test_norm, nombre, 'COP')
     model_reg = create_model_reg(X_cop_train_norm, optimizer=optimizer, n_layers=n_layers, n_neurons=n_neurons, learning_rate=n)
     model_reg.fit(X_cop_train_norm, y_train_norm, epochs=100, batch_size=64, validation_split=0.2, callbacks=[early_stop])
     y_cal_cop_train = scaler.inverse_transform(model_reg.predict(X_cop_train_norm, batch_size=64)).ravel()
@@ -148,5 +149,5 @@ for nombre in df_boya['Nombre']:
                                                     ind_train, y_cal_cop_train, ind_test, y_cal_cop_test,
                                                     'IBI', title, c='orange', plot=plot, fname=f'plot/model/04_RedNeuronal/{nombre}_red_ibi.png')
 
-    df_res.loc[len(df_res.index)] = [nombre, 'ANN', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
-df_res.to_csv('res.csv', index=False)
+    # df_res.loc[len(df_res.index)] = [nombre, 'Red Neuronal', bias_gow, bias_cop, rmse_gow, rmse_cop, pearson_gow, pearson_cop, si_gow, si_cop]
+# df_res.to_csv('res.csv', index=False)
