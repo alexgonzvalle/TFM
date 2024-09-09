@@ -9,7 +9,7 @@ def model_function(X, beta, gamma):
     return beta * X ** gamma
 
 
-plot = False
+plot = True
 df_boya = pd.read_csv('boyas.csv')
 df_res = pd.read_csv('res.csv')
 
@@ -28,26 +28,26 @@ for nombre in df_boya['Nombre']:
     ind_test = np.array([i for i in range(ind_time, len(boya.time))])
 
     # Separar las variables predictoras (X) y la variable objetivo (y)
-    X_train = boya.hs.values[ind_train]
-    X_test = boya.hs.values[ind_test]
+    X_gow_train = np.squeeze([gow.hs.values[ind_train]])
+    X_gow_test = np.squeeze([gow.hs.values[ind_test]])
+
+    X_cop_train = np.squeeze([copernicus.VHM0.values[ind_train]])
+    X_cop_test = np.squeeze([copernicus.VHM0.values[ind_test]])
 
     # Variable objetivo que queremos predecir/corregir
-    y_gow_train = gow.hs.values[ind_train]
-    y_gow_test = gow.hs.values[ind_test]
-
-    y_cop_train = copernicus.VHM0.values[ind_train]
-    y_cop_test = copernicus.VHM0.values[ind_test]
+    y_train = boya.hs.values[ind_train]
+    y_test = boya.hs.values[ind_test]
 
     # Modelo
-    params, params_covariance = curve_fit(model_function, X_train, y_gow_train, p0=[1, 1])
+    params, params_covariance = curve_fit(model_function, X_gow_train, y_train, p0=[1, 1])
     beta_gow, gamma_gow = params
-    y_cal_gow_train = ((1 / beta_gow) ** (1 / gamma_gow)) * y_gow_train ** (1 / gamma_gow)
-    y_cal_gow_test = ((1 / beta_gow) ** (1 / gamma_gow)) * y_gow_test ** (1 / gamma_gow)
+    y_cal_gow_train = beta_gow * X_gow_train ** gamma_gow
+    y_cal_gow_test = beta_gow * X_gow_test ** gamma_gow
 
-    params, params_covariance = curve_fit(model_function, X_train, y_cop_train, p0=[1, 1])
+    params, params_covariance = curve_fit(model_function, X_cop_train, y_train, p0=[1, 1])
     beta_cop, gamma_cop = params
-    y_cal_cop_train = ((1 / beta_cop) ** (1 / gamma_cop)) * y_cop_train ** (1 / gamma_cop)
-    y_cal_cop_test = ((1 / beta_cop) ** (1 / gamma_cop)) * y_cop_test ** (1 / gamma_cop)
+    y_cal_cop_train = beta_cop * X_cop_train ** gamma_cop
+    y_cal_cop_test = beta_cop * X_cop_test ** gamma_cop
 
     # import matplotlib.pyplot as plt
     #
@@ -60,12 +60,12 @@ for nombre in df_boya['Nombre']:
 
     # Dibujar
     aux_title = r'$Hs_{cal}$'
-    title = f'Modelo No Lineal {nombre}: {aux_title}={((1 / beta_gow) ** (1 / gamma_gow)):.2f}*Hs^{(1 / gamma_gow):.2f}'
+    title = f'Modelo No Lineal {nombre}: {aux_title}={beta_gow:.2f}*Hs^{gamma_gow:.2f}'
     bias_gow, rmse_gow, pearson_gow, si_gow = stats(boya.dir.values, boya.hs.values, gow.dir.values, gow.hs.values,
                                                     ind_train, y_cal_gow_train, ind_test, y_cal_gow_test,
                                                     'GOW', title, c='purple', plot=plot, fname=f'plot/model/02_NoLineal/{nombre}_noLineal_gow.png')
 
-    title = f'Modelo No Lineal {nombre}: {aux_title}={((1 / beta_cop) ** (1 / gamma_cop)):.2f}*Hs^{(1 / gamma_cop):.2f}'
+    title = f'Modelo No Lineal {nombre}: {aux_title}={beta_cop:.2f}*Hs^{gamma_cop:.2f}'
     bias_cop, rmse_cop, pearson_cop, si_cop = stats(boya.dir.values, boya.hs.values, copernicus.VMDR.values, copernicus.VHM0.values,
                                                     ind_train, y_cal_cop_train, ind_test, y_cal_cop_test,
                                                     'IBI', title, c='orange', plot=plot, fname=f'plot/model/02_NoLineal/{nombre}_noLineal_ibi.png')
