@@ -1,0 +1,16 @@
+Nombre,Longitud,Latitud,Cadencia,Codigo,Profundidad,InicioMedida,UltimaMedida,TipoSensor,Modelo,ConjuntoDatos
+Bilbao-Vizcaya,-3.04,43.64,60,2136,580,07-11-1990,10-07-2024,Direccional Met-Oce,SeaWatch,REDEXT
+Cabo_de_Pennas,-6.18,43.75,60,2242,615,09-06-1998,10-07-2024,Direccional Met-Oce,SeaWatch,REDEXT
+Estaca_de_Bares,-7.68,44.12,60,2244,1800,19-07-1996,10-07-2024,Direccional Met-Oce,SeaWatch,REDEXT
+Villano-Sisargas,-9.21,43.80,60,2246,386,12-05-1998,10-07-2024,Direccional Met-Oce,SeaWatch,REDEXT
+Cabo_Silleiro,-9.43,42.12,60,2248,600,06-07-1998,23-04-2020,Direccional Met-Oce,SeaWatch,REDEXT
+Golfo_de_Cadiz,-6.96,36.49,60,2342,450,27-08-1996,10-07-2024,Direccional Met-Oce,SeaWatch,REDEXT
+Cabo_de_Gata,-2.34,36.57,60,2548,536,27-03-1998,10-07-2024,Direccional Met-Oce,SeaWatch,REDEXT
+Cabo_de_Palos,-0.31,37.65,60,2610,230,18-07-2006,03-04-2020,Direccional Met-Oce,SeaWatch,REDEXT
+Valencia,-0.2,39.51,60,2630,260,15-09-2005,15-06-2020,Direccional Met-Oce,SeaWatch,REDEXT
+Tarragona,1.47,40.69,60,2720,688,20-08-2004,10-07-2024,Direccional Met-Oce,SeaWatch,REDEXT
+Cabo_Begur,3.65,41.90,60,2798,1200,27-03-2001,10-07-2024,Direccional Met-Oce,SeaWatch,REDEXT
+Dragonera,2.10,39.56,60,2820,141,29-11-2006,10-07-2024,Direccional Met-Oce,SeaWatch,REDEXT
+Mahon,4.42,39.71,60,2838,300,29-04-1993,10-07-2024,Direccional Met-Oce,SeaWatch,REDEXT
+Gran_Canaria,-15.8,28.2,60,2442,780,20-06-1997,25-06-2020,Direccional Met-Oce,SeaWatch,REDEXT
+Tenerife,-16.61,28,60,2446,710,01-04-1998,25-06-2020,Direccional Met-Oce,SeaWatch,REDEXT
